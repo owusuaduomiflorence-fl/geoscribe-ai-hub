@@ -10,12 +10,13 @@ import {
   Globe2,
   Menu,
   X,
+  Users,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 
-const links = [
+const baseLinks = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/chatbot", label: "AI Chatbot", icon: MessageSquare },
   { to: "/image-generator", label: "Image Generator", icon: ImageIcon },
@@ -24,11 +25,15 @@ const links = [
   { to: "/about", label: "About", icon: Info },
 ] as const;
 
+const teacherLink = { to: "/teacher", label: "Teacher Portal", icon: Users } as const;
+
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (r) => r.location.pathname });
-  const { user, signOut } = useAuth();
+  const { user, isTeacher, signOut } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+
+  const links = isTeacher ? [...baseLinks, teacherLink] : baseLinks;
 
   const handleSignOut = async () => {
     await signOut();
