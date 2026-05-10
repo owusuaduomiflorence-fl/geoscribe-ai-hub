@@ -21,6 +21,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Geoguide AI is a GES-aligned geography learning platform with an AI tutor, image generator, video storyboards, and a personal journal.",
       },
+      { property: "og:title", content: "Geoguide AI — Master Geography with AI" },
+      { name: "twitter:title", content: "Geoguide AI — Master Geography with AI" },
+      { name: "description", content: "Learn geography with AI – aligned with the GES syllabus. Chatbot, image & video generation, journal, and progress tracking." },
+      { property: "og:description", content: "Learn geography with AI – aligned with the GES syllabus. Chatbot, image & video generation, journal, and progress tracking." },
+      { name: "twitter:description", content: "Learn geography with AI – aligned with the GES syllabus. Chatbot, image & video generation, journal, and progress tracking." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/05e271d4-e7dc-43c1-8b3d-8d4892371354" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/05e271d4-e7dc-43c1-8b3d-8d4892371354" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:type", content: "website" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
