@@ -76,8 +76,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="px-3 py-4 border-t border-sidebar-border space-y-2">
-          <div className="px-3 text-xs text-sidebar-foreground/60 truncate">
-            {user?.email}
+          <div className="px-3 flex items-center justify-between gap-2">
+            <span className="text-xs text-sidebar-foreground/60 truncate">{user?.email}</span>
+            <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-primary/15 text-primary font-semibold">
+              {isTeacher ? "Teacher" : "Student"}
+            </span>
           </div>
           <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleSignOut}>
             <LogOut className="h-4 w-4 mr-2" /> Sign out
