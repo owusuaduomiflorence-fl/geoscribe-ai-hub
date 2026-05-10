@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppVideoGeneratorRouteImport } from './routes/_app.video-generator'
+import { Route as AppTeacherRouteImport } from './routes/_app.teacher'
 import { Route as AppJournalRouteImport } from './routes/_app.journal'
 import { Route as AppImageGeneratorRouteImport } from './routes/_app.image-generator'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
@@ -36,6 +37,11 @@ const IndexRoute = IndexRouteImport.update({
 const AppVideoGeneratorRoute = AppVideoGeneratorRouteImport.update({
   id: '/video-generator',
   path: '/video-generator',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTeacherRoute = AppTeacherRouteImport.update({
+  id: '/teacher',
+  path: '/teacher',
   getParentRoute: () => AppRoute,
 } as any)
 const AppJournalRoute = AppJournalRouteImport.update({
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AppDashboardRoute
   '/image-generator': typeof AppImageGeneratorRoute
   '/journal': typeof AppJournalRoute
+  '/teacher': typeof AppTeacherRoute
   '/video-generator': typeof AppVideoGeneratorRoute
 }
 export interface FileRoutesByTo {
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AppDashboardRoute
   '/image-generator': typeof AppImageGeneratorRoute
   '/journal': typeof AppJournalRoute
+  '/teacher': typeof AppTeacherRoute
   '/video-generator': typeof AppVideoGeneratorRoute
 }
 export interface FileRoutesById {
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/image-generator': typeof AppImageGeneratorRoute
   '/_app/journal': typeof AppJournalRoute
+  '/_app/teacher': typeof AppTeacherRoute
   '/_app/video-generator': typeof AppVideoGeneratorRoute
 }
 export interface FileRouteTypes {
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/image-generator'
     | '/journal'
+    | '/teacher'
     | '/video-generator'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/image-generator'
     | '/journal'
+    | '/teacher'
     | '/video-generator'
   id:
     | '__root__'
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/_app/dashboard'
     | '/_app/image-generator'
     | '/_app/journal'
+    | '/_app/teacher'
     | '/_app/video-generator'
   fileRoutesById: FileRoutesById
 }
@@ -164,6 +176,13 @@ declare module '@tanstack/react-router' {
       path: '/video-generator'
       fullPath: '/video-generator'
       preLoaderRoute: typeof AppVideoGeneratorRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/teacher': {
+      id: '/_app/teacher'
+      path: '/teacher'
+      fullPath: '/teacher'
+      preLoaderRoute: typeof AppTeacherRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/journal': {
@@ -210,6 +229,7 @@ interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppImageGeneratorRoute: typeof AppImageGeneratorRoute
   AppJournalRoute: typeof AppJournalRoute
+  AppTeacherRoute: typeof AppTeacherRoute
   AppVideoGeneratorRoute: typeof AppVideoGeneratorRoute
 }
 
@@ -219,6 +239,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppImageGeneratorRoute: AppImageGeneratorRoute,
   AppJournalRoute: AppJournalRoute,
+  AppTeacherRoute: AppTeacherRoute,
   AppVideoGeneratorRoute: AppVideoGeneratorRoute,
 }
 

@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Globe2 } from "lucide-react";
-import { useAuth } from "@/lib/auth";
+import { Globe2, GraduationCap, Users } from "lucide-react";
+import { useAuth, type AppRole } from "@/lib/auth";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({ component: AuthPage });
@@ -29,6 +29,8 @@ function AuthPage() {
     else navigate({ to: "/dashboard" });
   };
 
+  const [role, setRole] = useState<AppRole>("student");
+
   const onSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
@@ -36,7 +38,8 @@ function AuthPage() {
     const { error } = await signUp(
       String(fd.get("email")),
       String(fd.get("password")),
-      String(fd.get("name"))
+      String(fd.get("name")),
+      role
     );
     setBusy(false);
     if (error) toast.error(error);
@@ -78,6 +81,29 @@ function AuthPage() {
 
             <TabsContent value="signup" className="mt-5">
               <form onSubmit={onSignUp} className="space-y-3">
+                <div>
+                  <Label>I am a</Label>
+                  <div className="grid grid-cols-2 gap-2 mt-1.5">
+                    {(["student", "teacher"] as AppRole[]).map((r) => {
+                      const Icon = r === "student" ? GraduationCap : Users;
+                      const active = role === r;
+                      return (
+                        <button
+                          type="button"
+                          key={r}
+                          onClick={() => setRole(r)}
+                          className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm capitalize transition-colors ${
+                            active
+                              ? "border-primary bg-primary/10 text-foreground"
+                              : "border-border text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          <Icon className="h-4 w-4" /> {r}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
                 <div>
                   <Label htmlFor="su-name">Name</Label>
                   <Input id="su-name" name="name" required />
