@@ -9,38 +9,149 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppVideoGeneratorRouteImport } from './routes/_app.video-generator'
+import { Route as AppJournalRouteImport } from './routes/_app.journal'
+import { Route as AppImageGeneratorRouteImport } from './routes/_app.image-generator'
+import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppChatbotRouteImport } from './routes/_app.chatbot'
+import { Route as AppAboutRouteImport } from './routes/_app.about'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppVideoGeneratorRoute = AppVideoGeneratorRouteImport.update({
+  id: '/video-generator',
+  path: '/video-generator',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppJournalRoute = AppJournalRouteImport.update({
+  id: '/journal',
+  path: '/journal',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppImageGeneratorRoute = AppImageGeneratorRouteImport.update({
+  id: '/image-generator',
+  path: '/image-generator',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppChatbotRoute = AppChatbotRouteImport.update({
+  id: '/chatbot',
+  path: '/chatbot',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAboutRoute = AppAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/about': typeof AppAboutRoute
+  '/chatbot': typeof AppChatbotRoute
+  '/dashboard': typeof AppDashboardRoute
+  '/image-generator': typeof AppImageGeneratorRoute
+  '/journal': typeof AppJournalRoute
+  '/video-generator': typeof AppVideoGeneratorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/about': typeof AppAboutRoute
+  '/chatbot': typeof AppChatbotRoute
+  '/dashboard': typeof AppDashboardRoute
+  '/image-generator': typeof AppImageGeneratorRoute
+  '/journal': typeof AppJournalRoute
+  '/video-generator': typeof AppVideoGeneratorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_app': typeof AppRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_app/about': typeof AppAboutRoute
+  '/_app/chatbot': typeof AppChatbotRoute
+  '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/image-generator': typeof AppImageGeneratorRoute
+  '/_app/journal': typeof AppJournalRoute
+  '/_app/video-generator': typeof AppVideoGeneratorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/about'
+    | '/chatbot'
+    | '/dashboard'
+    | '/image-generator'
+    | '/journal'
+    | '/video-generator'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/about'
+    | '/chatbot'
+    | '/dashboard'
+    | '/image-generator'
+    | '/journal'
+    | '/video-generator'
+  id:
+    | '__root__'
+    | '/'
+    | '/_app'
+    | '/auth'
+    | '/_app/about'
+    | '/_app/chatbot'
+    | '/_app/dashboard'
+    | '/_app/image-generator'
+    | '/_app/journal'
+    | '/_app/video-generator'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +159,76 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/video-generator': {
+      id: '/_app/video-generator'
+      path: '/video-generator'
+      fullPath: '/video-generator'
+      preLoaderRoute: typeof AppVideoGeneratorRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/journal': {
+      id: '/_app/journal'
+      path: '/journal'
+      fullPath: '/journal'
+      preLoaderRoute: typeof AppJournalRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/image-generator': {
+      id: '/_app/image-generator'
+      path: '/image-generator'
+      fullPath: '/image-generator'
+      preLoaderRoute: typeof AppImageGeneratorRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/chatbot': {
+      id: '/_app/chatbot'
+      path: '/chatbot'
+      fullPath: '/chatbot'
+      preLoaderRoute: typeof AppChatbotRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/about': {
+      id: '/_app/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AppAboutRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppAboutRoute: typeof AppAboutRoute
+  AppChatbotRoute: typeof AppChatbotRoute
+  AppDashboardRoute: typeof AppDashboardRoute
+  AppImageGeneratorRoute: typeof AppImageGeneratorRoute
+  AppJournalRoute: typeof AppJournalRoute
+  AppVideoGeneratorRoute: typeof AppVideoGeneratorRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppAboutRoute: AppAboutRoute,
+  AppChatbotRoute: AppChatbotRoute,
+  AppDashboardRoute: AppDashboardRoute,
+  AppImageGeneratorRoute: AppImageGeneratorRoute,
+  AppJournalRoute: AppJournalRoute,
+  AppVideoGeneratorRoute: AppVideoGeneratorRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
