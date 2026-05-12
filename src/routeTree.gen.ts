@@ -16,6 +16,7 @@ import { Route as AppVideoGeneratorRouteImport } from './routes/_app.video-gener
 import { Route as AppTeacherRouteImport } from './routes/_app.teacher'
 import { Route as AppJournalRouteImport } from './routes/_app.journal'
 import { Route as AppImageGeneratorRouteImport } from './routes/_app.image-generator'
+import { Route as AppGamesRouteImport } from './routes/_app.games'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppClassesRouteImport } from './routes/_app.classes'
 import { Route as AppChatbotRouteImport } from './routes/_app.chatbot'
@@ -25,6 +26,8 @@ import { Route as AppTeacherWorksheetsRouteImport } from './routes/_app.teacher.
 import { Route as AppTeacherQuizzesRouteImport } from './routes/_app.teacher.quizzes'
 import { Route as AppTeacherClassesRouteImport } from './routes/_app.teacher.classes'
 import { Route as AppTeacherAssignmentsRouteImport } from './routes/_app.teacher.assignments'
+import { Route as AppGamesTermMatchRouteImport } from './routes/_app.games.term-match'
+import { Route as AppGamesMapQuizRouteImport } from './routes/_app.games.map-quiz'
 import { Route as AppAssignmentsIdRouteImport } from './routes/_app.assignments.$id'
 import { Route as AppTeacherWorksheetsIdRouteImport } from './routes/_app.teacher.worksheets.$id'
 import { Route as AppTeacherQuizzesIdRouteImport } from './routes/_app.teacher.quizzes.$id'
@@ -62,6 +65,11 @@ const AppJournalRoute = AppJournalRouteImport.update({
 const AppImageGeneratorRoute = AppImageGeneratorRouteImport.update({
   id: '/image-generator',
   path: '/image-generator',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGamesRoute = AppGamesRouteImport.update({
+  id: '/games',
+  path: '/games',
   getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
@@ -109,6 +117,16 @@ const AppTeacherAssignmentsRoute = AppTeacherAssignmentsRouteImport.update({
   path: '/assignments',
   getParentRoute: () => AppTeacherRoute,
 } as any)
+const AppGamesTermMatchRoute = AppGamesTermMatchRouteImport.update({
+  id: '/term-match',
+  path: '/term-match',
+  getParentRoute: () => AppGamesRoute,
+} as any)
+const AppGamesMapQuizRoute = AppGamesMapQuizRouteImport.update({
+  id: '/map-quiz',
+  path: '/map-quiz',
+  getParentRoute: () => AppGamesRoute,
+} as any)
 const AppAssignmentsIdRoute = AppAssignmentsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -139,11 +157,14 @@ export interface FileRoutesByFullPath {
   '/chatbot': typeof AppChatbotRoute
   '/classes': typeof AppClassesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/games': typeof AppGamesRouteWithChildren
   '/image-generator': typeof AppImageGeneratorRoute
   '/journal': typeof AppJournalRoute
   '/teacher': typeof AppTeacherRouteWithChildren
   '/video-generator': typeof AppVideoGeneratorRoute
   '/assignments/$id': typeof AppAssignmentsIdRoute
+  '/games/map-quiz': typeof AppGamesMapQuizRoute
+  '/games/term-match': typeof AppGamesTermMatchRoute
   '/teacher/assignments': typeof AppTeacherAssignmentsRoute
   '/teacher/classes': typeof AppTeacherClassesRoute
   '/teacher/quizzes': typeof AppTeacherQuizzesRouteWithChildren
@@ -160,11 +181,14 @@ export interface FileRoutesByTo {
   '/chatbot': typeof AppChatbotRoute
   '/classes': typeof AppClassesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/games': typeof AppGamesRouteWithChildren
   '/image-generator': typeof AppImageGeneratorRoute
   '/journal': typeof AppJournalRoute
   '/teacher': typeof AppTeacherRouteWithChildren
   '/video-generator': typeof AppVideoGeneratorRoute
   '/assignments/$id': typeof AppAssignmentsIdRoute
+  '/games/map-quiz': typeof AppGamesMapQuizRoute
+  '/games/term-match': typeof AppGamesTermMatchRoute
   '/teacher/assignments': typeof AppTeacherAssignmentsRoute
   '/teacher/classes': typeof AppTeacherClassesRoute
   '/teacher/quizzes': typeof AppTeacherQuizzesRouteWithChildren
@@ -183,11 +207,14 @@ export interface FileRoutesById {
   '/_app/chatbot': typeof AppChatbotRoute
   '/_app/classes': typeof AppClassesRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/games': typeof AppGamesRouteWithChildren
   '/_app/image-generator': typeof AppImageGeneratorRoute
   '/_app/journal': typeof AppJournalRoute
   '/_app/teacher': typeof AppTeacherRouteWithChildren
   '/_app/video-generator': typeof AppVideoGeneratorRoute
   '/_app/assignments/$id': typeof AppAssignmentsIdRoute
+  '/_app/games/map-quiz': typeof AppGamesMapQuizRoute
+  '/_app/games/term-match': typeof AppGamesTermMatchRoute
   '/_app/teacher/assignments': typeof AppTeacherAssignmentsRoute
   '/_app/teacher/classes': typeof AppTeacherClassesRoute
   '/_app/teacher/quizzes': typeof AppTeacherQuizzesRouteWithChildren
@@ -206,11 +233,14 @@ export interface FileRouteTypes {
     | '/chatbot'
     | '/classes'
     | '/dashboard'
+    | '/games'
     | '/image-generator'
     | '/journal'
     | '/teacher'
     | '/video-generator'
     | '/assignments/$id'
+    | '/games/map-quiz'
+    | '/games/term-match'
     | '/teacher/assignments'
     | '/teacher/classes'
     | '/teacher/quizzes'
@@ -227,11 +257,14 @@ export interface FileRouteTypes {
     | '/chatbot'
     | '/classes'
     | '/dashboard'
+    | '/games'
     | '/image-generator'
     | '/journal'
     | '/teacher'
     | '/video-generator'
     | '/assignments/$id'
+    | '/games/map-quiz'
+    | '/games/term-match'
     | '/teacher/assignments'
     | '/teacher/classes'
     | '/teacher/quizzes'
@@ -249,11 +282,14 @@ export interface FileRouteTypes {
     | '/_app/chatbot'
     | '/_app/classes'
     | '/_app/dashboard'
+    | '/_app/games'
     | '/_app/image-generator'
     | '/_app/journal'
     | '/_app/teacher'
     | '/_app/video-generator'
     | '/_app/assignments/$id'
+    | '/_app/games/map-quiz'
+    | '/_app/games/term-match'
     | '/_app/teacher/assignments'
     | '/_app/teacher/classes'
     | '/_app/teacher/quizzes'
@@ -320,6 +356,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppImageGeneratorRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/games': {
+      id: '/_app/games'
+      path: '/games'
+      fullPath: '/games'
+      preLoaderRoute: typeof AppGamesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
@@ -383,6 +426,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTeacherAssignmentsRouteImport
       parentRoute: typeof AppTeacherRoute
     }
+    '/_app/games/term-match': {
+      id: '/_app/games/term-match'
+      path: '/term-match'
+      fullPath: '/games/term-match'
+      preLoaderRoute: typeof AppGamesTermMatchRouteImport
+      parentRoute: typeof AppGamesRoute
+    }
+    '/_app/games/map-quiz': {
+      id: '/_app/games/map-quiz'
+      path: '/map-quiz'
+      fullPath: '/games/map-quiz'
+      preLoaderRoute: typeof AppGamesMapQuizRouteImport
+      parentRoute: typeof AppGamesRoute
+    }
     '/_app/assignments/$id': {
       id: '/_app/assignments/$id'
       path: '/$id'
@@ -424,6 +481,20 @@ const AppAssignmentsRouteChildren: AppAssignmentsRouteChildren = {
 
 const AppAssignmentsRouteWithChildren = AppAssignmentsRoute._addFileChildren(
   AppAssignmentsRouteChildren,
+)
+
+interface AppGamesRouteChildren {
+  AppGamesMapQuizRoute: typeof AppGamesMapQuizRoute
+  AppGamesTermMatchRoute: typeof AppGamesTermMatchRoute
+}
+
+const AppGamesRouteChildren: AppGamesRouteChildren = {
+  AppGamesMapQuizRoute: AppGamesMapQuizRoute,
+  AppGamesTermMatchRoute: AppGamesTermMatchRoute,
+}
+
+const AppGamesRouteWithChildren = AppGamesRoute._addFileChildren(
+  AppGamesRouteChildren,
 )
 
 interface AppTeacherQuizzesRouteChildren {
@@ -474,6 +545,7 @@ interface AppRouteChildren {
   AppChatbotRoute: typeof AppChatbotRoute
   AppClassesRoute: typeof AppClassesRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppGamesRoute: typeof AppGamesRouteWithChildren
   AppImageGeneratorRoute: typeof AppImageGeneratorRoute
   AppJournalRoute: typeof AppJournalRoute
   AppTeacherRoute: typeof AppTeacherRouteWithChildren
@@ -486,6 +558,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppChatbotRoute: AppChatbotRoute,
   AppClassesRoute: AppClassesRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppGamesRoute: AppGamesRouteWithChildren,
   AppImageGeneratorRoute: AppImageGeneratorRoute,
   AppJournalRoute: AppJournalRoute,
   AppTeacherRoute: AppTeacherRouteWithChildren,
