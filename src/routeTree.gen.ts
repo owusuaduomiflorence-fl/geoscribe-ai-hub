@@ -23,8 +23,10 @@ import { Route as AppAboutRouteImport } from './routes/_app.about'
 import { Route as AppTeacherWorksheetsRouteImport } from './routes/_app.teacher.worksheets'
 import { Route as AppTeacherQuizzesRouteImport } from './routes/_app.teacher.quizzes'
 import { Route as AppTeacherClassesRouteImport } from './routes/_app.teacher.classes'
+import { Route as AppTeacherAssignmentsRouteImport } from './routes/_app.teacher.assignments'
 import { Route as AppTeacherWorksheetsIdRouteImport } from './routes/_app.teacher.worksheets.$id'
 import { Route as AppTeacherQuizzesIdRouteImport } from './routes/_app.teacher.quizzes.$id'
+import { Route as AppTeacherGradebookAssignmentIdRouteImport } from './routes/_app.teacher.gradebook.$assignmentId'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -95,6 +97,11 @@ const AppTeacherClassesRoute = AppTeacherClassesRouteImport.update({
   path: '/classes',
   getParentRoute: () => AppTeacherRoute,
 } as any)
+const AppTeacherAssignmentsRoute = AppTeacherAssignmentsRouteImport.update({
+  id: '/assignments',
+  path: '/assignments',
+  getParentRoute: () => AppTeacherRoute,
+} as any)
 const AppTeacherWorksheetsIdRoute = AppTeacherWorksheetsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -105,6 +112,12 @@ const AppTeacherQuizzesIdRoute = AppTeacherQuizzesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AppTeacherQuizzesRoute,
 } as any)
+const AppTeacherGradebookAssignmentIdRoute =
+  AppTeacherGradebookAssignmentIdRouteImport.update({
+    id: '/gradebook/$assignmentId',
+    path: '/gradebook/$assignmentId',
+    getParentRoute: () => AppTeacherRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -117,9 +130,11 @@ export interface FileRoutesByFullPath {
   '/journal': typeof AppJournalRoute
   '/teacher': typeof AppTeacherRouteWithChildren
   '/video-generator': typeof AppVideoGeneratorRoute
+  '/teacher/assignments': typeof AppTeacherAssignmentsRoute
   '/teacher/classes': typeof AppTeacherClassesRoute
   '/teacher/quizzes': typeof AppTeacherQuizzesRouteWithChildren
   '/teacher/worksheets': typeof AppTeacherWorksheetsRouteWithChildren
+  '/teacher/gradebook/$assignmentId': typeof AppTeacherGradebookAssignmentIdRoute
   '/teacher/quizzes/$id': typeof AppTeacherQuizzesIdRoute
   '/teacher/worksheets/$id': typeof AppTeacherWorksheetsIdRoute
 }
@@ -134,9 +149,11 @@ export interface FileRoutesByTo {
   '/journal': typeof AppJournalRoute
   '/teacher': typeof AppTeacherRouteWithChildren
   '/video-generator': typeof AppVideoGeneratorRoute
+  '/teacher/assignments': typeof AppTeacherAssignmentsRoute
   '/teacher/classes': typeof AppTeacherClassesRoute
   '/teacher/quizzes': typeof AppTeacherQuizzesRouteWithChildren
   '/teacher/worksheets': typeof AppTeacherWorksheetsRouteWithChildren
+  '/teacher/gradebook/$assignmentId': typeof AppTeacherGradebookAssignmentIdRoute
   '/teacher/quizzes/$id': typeof AppTeacherQuizzesIdRoute
   '/teacher/worksheets/$id': typeof AppTeacherWorksheetsIdRoute
 }
@@ -153,9 +170,11 @@ export interface FileRoutesById {
   '/_app/journal': typeof AppJournalRoute
   '/_app/teacher': typeof AppTeacherRouteWithChildren
   '/_app/video-generator': typeof AppVideoGeneratorRoute
+  '/_app/teacher/assignments': typeof AppTeacherAssignmentsRoute
   '/_app/teacher/classes': typeof AppTeacherClassesRoute
   '/_app/teacher/quizzes': typeof AppTeacherQuizzesRouteWithChildren
   '/_app/teacher/worksheets': typeof AppTeacherWorksheetsRouteWithChildren
+  '/_app/teacher/gradebook/$assignmentId': typeof AppTeacherGradebookAssignmentIdRoute
   '/_app/teacher/quizzes/$id': typeof AppTeacherQuizzesIdRoute
   '/_app/teacher/worksheets/$id': typeof AppTeacherWorksheetsIdRoute
 }
@@ -172,9 +191,11 @@ export interface FileRouteTypes {
     | '/journal'
     | '/teacher'
     | '/video-generator'
+    | '/teacher/assignments'
     | '/teacher/classes'
     | '/teacher/quizzes'
     | '/teacher/worksheets'
+    | '/teacher/gradebook/$assignmentId'
     | '/teacher/quizzes/$id'
     | '/teacher/worksheets/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -189,9 +210,11 @@ export interface FileRouteTypes {
     | '/journal'
     | '/teacher'
     | '/video-generator'
+    | '/teacher/assignments'
     | '/teacher/classes'
     | '/teacher/quizzes'
     | '/teacher/worksheets'
+    | '/teacher/gradebook/$assignmentId'
     | '/teacher/quizzes/$id'
     | '/teacher/worksheets/$id'
   id:
@@ -207,9 +230,11 @@ export interface FileRouteTypes {
     | '/_app/journal'
     | '/_app/teacher'
     | '/_app/video-generator'
+    | '/_app/teacher/assignments'
     | '/_app/teacher/classes'
     | '/_app/teacher/quizzes'
     | '/_app/teacher/worksheets'
+    | '/_app/teacher/gradebook/$assignmentId'
     | '/_app/teacher/quizzes/$id'
     | '/_app/teacher/worksheets/$id'
   fileRoutesById: FileRoutesById
@@ -320,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTeacherClassesRouteImport
       parentRoute: typeof AppTeacherRoute
     }
+    '/_app/teacher/assignments': {
+      id: '/_app/teacher/assignments'
+      path: '/assignments'
+      fullPath: '/teacher/assignments'
+      preLoaderRoute: typeof AppTeacherAssignmentsRouteImport
+      parentRoute: typeof AppTeacherRoute
+    }
     '/_app/teacher/worksheets/$id': {
       id: '/_app/teacher/worksheets/$id'
       path: '/$id'
@@ -333,6 +365,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/teacher/quizzes/$id'
       preLoaderRoute: typeof AppTeacherQuizzesIdRouteImport
       parentRoute: typeof AppTeacherQuizzesRoute
+    }
+    '/_app/teacher/gradebook/$assignmentId': {
+      id: '/_app/teacher/gradebook/$assignmentId'
+      path: '/gradebook/$assignmentId'
+      fullPath: '/teacher/gradebook/$assignmentId'
+      preLoaderRoute: typeof AppTeacherGradebookAssignmentIdRouteImport
+      parentRoute: typeof AppTeacherRoute
     }
   }
 }
@@ -360,15 +399,19 @@ const AppTeacherWorksheetsRouteWithChildren =
   AppTeacherWorksheetsRoute._addFileChildren(AppTeacherWorksheetsRouteChildren)
 
 interface AppTeacherRouteChildren {
+  AppTeacherAssignmentsRoute: typeof AppTeacherAssignmentsRoute
   AppTeacherClassesRoute: typeof AppTeacherClassesRoute
   AppTeacherQuizzesRoute: typeof AppTeacherQuizzesRouteWithChildren
   AppTeacherWorksheetsRoute: typeof AppTeacherWorksheetsRouteWithChildren
+  AppTeacherGradebookAssignmentIdRoute: typeof AppTeacherGradebookAssignmentIdRoute
 }
 
 const AppTeacherRouteChildren: AppTeacherRouteChildren = {
+  AppTeacherAssignmentsRoute: AppTeacherAssignmentsRoute,
   AppTeacherClassesRoute: AppTeacherClassesRoute,
   AppTeacherQuizzesRoute: AppTeacherQuizzesRouteWithChildren,
   AppTeacherWorksheetsRoute: AppTeacherWorksheetsRouteWithChildren,
+  AppTeacherGradebookAssignmentIdRoute: AppTeacherGradebookAssignmentIdRoute,
 }
 
 const AppTeacherRouteWithChildren = AppTeacherRoute._addFileChildren(
