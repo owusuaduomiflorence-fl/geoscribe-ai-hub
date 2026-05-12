@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Globe2, GraduationCap, Users } from "lucide-react";
 import { useAuth, type AppRole } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({ component: AuthPage });
@@ -16,7 +17,18 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) navigate({ to: "/dashboard" });
+    if (!loading && user) {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("invite");
+      (async () => {
+        if (token) {
+          const { error } = await supabase.rpc("accept_class_invite", { _token: token });
+          if (error) toast.error(error.message);
+          else toast.success("Joined class via invite");
+        }
+        navigate({ to: "/dashboard" });
+      })();
+    }
   }, [user, loading, navigate]);
 
   const onSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
