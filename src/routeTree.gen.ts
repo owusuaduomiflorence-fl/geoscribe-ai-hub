@@ -19,11 +19,13 @@ import { Route as AppImageGeneratorRouteImport } from './routes/_app.image-gener
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppClassesRouteImport } from './routes/_app.classes'
 import { Route as AppChatbotRouteImport } from './routes/_app.chatbot'
+import { Route as AppAssignmentsRouteImport } from './routes/_app.assignments'
 import { Route as AppAboutRouteImport } from './routes/_app.about'
 import { Route as AppTeacherWorksheetsRouteImport } from './routes/_app.teacher.worksheets'
 import { Route as AppTeacherQuizzesRouteImport } from './routes/_app.teacher.quizzes'
 import { Route as AppTeacherClassesRouteImport } from './routes/_app.teacher.classes'
 import { Route as AppTeacherAssignmentsRouteImport } from './routes/_app.teacher.assignments'
+import { Route as AppAssignmentsIdRouteImport } from './routes/_app.assignments.$id'
 import { Route as AppTeacherWorksheetsIdRouteImport } from './routes/_app.teacher.worksheets.$id'
 import { Route as AppTeacherQuizzesIdRouteImport } from './routes/_app.teacher.quizzes.$id'
 import { Route as AppTeacherGradebookAssignmentIdRouteImport } from './routes/_app.teacher.gradebook.$assignmentId'
@@ -77,6 +79,11 @@ const AppChatbotRoute = AppChatbotRouteImport.update({
   path: '/chatbot',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAssignmentsRoute = AppAssignmentsRouteImport.update({
+  id: '/assignments',
+  path: '/assignments',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAboutRoute = AppAboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -102,6 +109,11 @@ const AppTeacherAssignmentsRoute = AppTeacherAssignmentsRouteImport.update({
   path: '/assignments',
   getParentRoute: () => AppTeacherRoute,
 } as any)
+const AppAssignmentsIdRoute = AppAssignmentsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppAssignmentsRoute,
+} as any)
 const AppTeacherWorksheetsIdRoute = AppTeacherWorksheetsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -123,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/about': typeof AppAboutRoute
+  '/assignments': typeof AppAssignmentsRouteWithChildren
   '/chatbot': typeof AppChatbotRoute
   '/classes': typeof AppClassesRoute
   '/dashboard': typeof AppDashboardRoute
@@ -130,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/journal': typeof AppJournalRoute
   '/teacher': typeof AppTeacherRouteWithChildren
   '/video-generator': typeof AppVideoGeneratorRoute
+  '/assignments/$id': typeof AppAssignmentsIdRoute
   '/teacher/assignments': typeof AppTeacherAssignmentsRoute
   '/teacher/classes': typeof AppTeacherClassesRoute
   '/teacher/quizzes': typeof AppTeacherQuizzesRouteWithChildren
@@ -142,6 +156,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/about': typeof AppAboutRoute
+  '/assignments': typeof AppAssignmentsRouteWithChildren
   '/chatbot': typeof AppChatbotRoute
   '/classes': typeof AppClassesRoute
   '/dashboard': typeof AppDashboardRoute
@@ -149,6 +164,7 @@ export interface FileRoutesByTo {
   '/journal': typeof AppJournalRoute
   '/teacher': typeof AppTeacherRouteWithChildren
   '/video-generator': typeof AppVideoGeneratorRoute
+  '/assignments/$id': typeof AppAssignmentsIdRoute
   '/teacher/assignments': typeof AppTeacherAssignmentsRoute
   '/teacher/classes': typeof AppTeacherClassesRoute
   '/teacher/quizzes': typeof AppTeacherQuizzesRouteWithChildren
@@ -163,6 +179,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
   '/_app/about': typeof AppAboutRoute
+  '/_app/assignments': typeof AppAssignmentsRouteWithChildren
   '/_app/chatbot': typeof AppChatbotRoute
   '/_app/classes': typeof AppClassesRoute
   '/_app/dashboard': typeof AppDashboardRoute
@@ -170,6 +187,7 @@ export interface FileRoutesById {
   '/_app/journal': typeof AppJournalRoute
   '/_app/teacher': typeof AppTeacherRouteWithChildren
   '/_app/video-generator': typeof AppVideoGeneratorRoute
+  '/_app/assignments/$id': typeof AppAssignmentsIdRoute
   '/_app/teacher/assignments': typeof AppTeacherAssignmentsRoute
   '/_app/teacher/classes': typeof AppTeacherClassesRoute
   '/_app/teacher/quizzes': typeof AppTeacherQuizzesRouteWithChildren
@@ -184,6 +202,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/about'
+    | '/assignments'
     | '/chatbot'
     | '/classes'
     | '/dashboard'
@@ -191,6 +210,7 @@ export interface FileRouteTypes {
     | '/journal'
     | '/teacher'
     | '/video-generator'
+    | '/assignments/$id'
     | '/teacher/assignments'
     | '/teacher/classes'
     | '/teacher/quizzes'
@@ -203,6 +223,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/about'
+    | '/assignments'
     | '/chatbot'
     | '/classes'
     | '/dashboard'
@@ -210,6 +231,7 @@ export interface FileRouteTypes {
     | '/journal'
     | '/teacher'
     | '/video-generator'
+    | '/assignments/$id'
     | '/teacher/assignments'
     | '/teacher/classes'
     | '/teacher/quizzes'
@@ -223,6 +245,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/auth'
     | '/_app/about'
+    | '/_app/assignments'
     | '/_app/chatbot'
     | '/_app/classes'
     | '/_app/dashboard'
@@ -230,6 +253,7 @@ export interface FileRouteTypes {
     | '/_app/journal'
     | '/_app/teacher'
     | '/_app/video-generator'
+    | '/_app/assignments/$id'
     | '/_app/teacher/assignments'
     | '/_app/teacher/classes'
     | '/_app/teacher/quizzes'
@@ -317,6 +341,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppChatbotRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/assignments': {
+      id: '/_app/assignments'
+      path: '/assignments'
+      fullPath: '/assignments'
+      preLoaderRoute: typeof AppAssignmentsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/about': {
       id: '/_app/about'
       path: '/about'
@@ -352,6 +383,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTeacherAssignmentsRouteImport
       parentRoute: typeof AppTeacherRoute
     }
+    '/_app/assignments/$id': {
+      id: '/_app/assignments/$id'
+      path: '/$id'
+      fullPath: '/assignments/$id'
+      preLoaderRoute: typeof AppAssignmentsIdRouteImport
+      parentRoute: typeof AppAssignmentsRoute
+    }
     '/_app/teacher/worksheets/$id': {
       id: '/_app/teacher/worksheets/$id'
       path: '/$id'
@@ -375,6 +413,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AppAssignmentsRouteChildren {
+  AppAssignmentsIdRoute: typeof AppAssignmentsIdRoute
+}
+
+const AppAssignmentsRouteChildren: AppAssignmentsRouteChildren = {
+  AppAssignmentsIdRoute: AppAssignmentsIdRoute,
+}
+
+const AppAssignmentsRouteWithChildren = AppAssignmentsRoute._addFileChildren(
+  AppAssignmentsRouteChildren,
+)
 
 interface AppTeacherQuizzesRouteChildren {
   AppTeacherQuizzesIdRoute: typeof AppTeacherQuizzesIdRoute
@@ -420,6 +470,7 @@ const AppTeacherRouteWithChildren = AppTeacherRoute._addFileChildren(
 
 interface AppRouteChildren {
   AppAboutRoute: typeof AppAboutRoute
+  AppAssignmentsRoute: typeof AppAssignmentsRouteWithChildren
   AppChatbotRoute: typeof AppChatbotRoute
   AppClassesRoute: typeof AppClassesRoute
   AppDashboardRoute: typeof AppDashboardRoute
@@ -431,6 +482,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAboutRoute: AppAboutRoute,
+  AppAssignmentsRoute: AppAssignmentsRouteWithChildren,
   AppChatbotRoute: AppChatbotRoute,
   AppClassesRoute: AppClassesRoute,
   AppDashboardRoute: AppDashboardRoute,
