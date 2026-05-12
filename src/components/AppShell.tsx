@@ -11,21 +11,35 @@ import {
   Menu,
   X,
   Users,
+  GraduationCap,
+  ClipboardList,
+  Gamepad2,
+  FileText,
+  School,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 
-const baseLinks = [
+const studentLinks = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/chatbot", label: "AI Chatbot", icon: MessageSquare },
-  { to: "/image-generator", label: "Image Generator", icon: ImageIcon },
-  { to: "/video-generator", label: "Video Generator", icon: Video },
+  { to: "/image-generator", label: "Images", icon: ImageIcon },
+  { to: "/video-generator", label: "Videos", icon: Video },
   { to: "/journal", label: "Journal", icon: BookOpen },
+  { to: "/assignments", label: "Assignments", icon: ClipboardList },
+  { to: "/classes", label: "My Classes", icon: School },
+  { to: "/games", label: "Games", icon: Gamepad2 },
   { to: "/about", label: "About", icon: Info },
 ] as const;
 
-const teacherLink = { to: "/teacher", label: "Teacher Portal", icon: Users } as const;
+const teacherExtraLinks = [
+  { to: "/teacher", label: "Teacher Portal", icon: Users },
+  { to: "/teacher/classes", label: "Classes", icon: GraduationCap },
+  { to: "/teacher/quizzes", label: "Quizzes", icon: ClipboardList },
+  { to: "/teacher/worksheets", label: "Worksheets", icon: FileText },
+  { to: "/teacher/assignments", label: "Assignments", icon: ClipboardList },
+] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (r) => r.location.pathname });
@@ -33,7 +47,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
-  const links = isTeacher ? [...baseLinks, teacherLink] : baseLinks;
+  const links = isTeacher ? [...studentLinks, ...teacherExtraLinks] : studentLinks;
 
   const handleSignOut = async () => {
     await signOut();
@@ -42,7 +56,6 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex w-full">
-      {/* Sidebar */}
       <aside
         className={`${
           open ? "translate-x-0" : "-translate-x-full"
@@ -54,7 +67,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           <span className="font-display font-semibold text-lg">Geoguide AI</span>
         </Link>
-        <nav className="flex-1 px-3 py-4 space-y-1">
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {links.map((l) => {
             const active = path === l.to;
             const Icon = l.icon;
@@ -63,7 +76,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 key={l.to}
                 to={l.to}
                 onClick={() => setOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   active
                     ? "bg-sidebar-accent text-sidebar-accent-foreground"
                     : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
@@ -88,7 +101,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      {/* Mobile toggle */}
       <button
         className="md:hidden fixed top-3 left-3 z-50 h-10 w-10 grid place-items-center rounded-lg bg-card border border-border"
         onClick={() => setOpen((v) => !v)}

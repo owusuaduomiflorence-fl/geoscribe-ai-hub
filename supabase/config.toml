@@ -8,3 +8,9 @@ verify_jwt = true
 
 [functions.generate-video]
 verify_jwt = true
+
+[functions.generate-quiz]
+verify_jwt = true
+
+[functions.generate-worksheet]
+verify_jwt = true
