@@ -14,6 +14,144 @@ export type Database = {
   }
   public: {
     Tables: {
+      assignments: {
+        Row: {
+          class_id: string
+          created_at: string
+          due_date: string | null
+          id: string
+          payload: Json | null
+          ref_id: string
+          teacher_id: string
+          title: string
+          type: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          payload?: Json | null
+          ref_id: string
+          teacher_id: string
+          title: string
+          type: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          payload?: Json | null
+          ref_id?: string
+          teacher_id?: string
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignments_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_invites: {
+        Row: {
+          class_id: string
+          created_at: string
+          email: string
+          id: string
+          status: string
+          token: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          email: string
+          id?: string
+          status?: string
+          token?: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          email?: string
+          id?: string
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_invites_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_members: {
+        Row: {
+          class_id: string
+          id: string
+          joined_at: string
+          student_id: string
+        }
+        Insert: {
+          class_id: string
+          id?: string
+          joined_at?: string
+          student_id: string
+        }
+        Update: {
+          class_id?: string
+          id?: string
+          joined_at?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_members_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classes: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          join_code: string
+          name: string
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          join_code?: string
+          name: string
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          join_code?: string
+          name?: string
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string
@@ -34,6 +172,30 @@ export type Database = {
           id?: string
           title?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      game_scores: {
+        Row: {
+          created_at: string
+          game: string
+          id: string
+          score: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          game: string
+          id?: string
+          score?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          game?: string
+          id?: string
+          score?: number
           user_id?: string
         }
         Relationships: []
@@ -64,8 +226,10 @@ export type Database = {
       }
       generated_videos: {
         Row: {
+          clips: Json | null
           created_at: string
           id: string
+          kind: string
           poster_url: string | null
           prompt: string
           scenes: Json | null
@@ -74,8 +238,10 @@ export type Database = {
           video_url: string | null
         }
         Insert: {
+          clips?: Json | null
           created_at?: string
           id?: string
+          kind?: string
           poster_url?: string | null
           prompt: string
           scenes?: Json | null
@@ -84,8 +250,10 @@ export type Database = {
           video_url?: string | null
         }
         Update: {
+          clips?: Json | null
           created_at?: string
           id?: string
+          kind?: string
           poster_url?: string | null
           prompt?: string
           scenes?: Json | null
@@ -184,6 +352,86 @@ export type Database = {
         }
         Relationships: []
       }
+      quizzes: {
+        Row: {
+          created_at: string
+          id: string
+          questions: Json
+          teacher_id: string
+          title: string
+          topic: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          questions?: Json
+          teacher_id: string
+          title: string
+          topic?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          questions?: Json
+          teacher_id?: string
+          title?: string
+          topic?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      submissions: {
+        Row: {
+          answers: Json
+          assignment_id: string
+          auto_score: number | null
+          graded_at: string | null
+          id: string
+          manual_score: number | null
+          max_score: number | null
+          status: string
+          student_id: string
+          submitted_at: string
+          total_score: number | null
+        }
+        Insert: {
+          answers?: Json
+          assignment_id: string
+          auto_score?: number | null
+          graded_at?: string | null
+          id?: string
+          manual_score?: number | null
+          max_score?: number | null
+          status?: string
+          student_id: string
+          submitted_at?: string
+          total_score?: number | null
+        }
+        Update: {
+          answers?: Json
+          assignment_id?: string
+          auto_score?: number | null
+          graded_at?: string | null
+          id?: string
+          manual_score?: number | null
+          max_score?: number | null
+          status?: string
+          student_id?: string
+          submitted_at?: string
+          total_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -205,11 +453,43 @@ export type Database = {
         }
         Relationships: []
       }
+      worksheets: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          teacher_id: string
+          title: string
+          topic: string | null
+          updated_at: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          teacher_id: string
+          title: string
+          topic?: string | null
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          teacher_id?: string
+          title?: string
+          topic?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      accept_class_invite: { Args: { _token: string }; Returns: string }
+      gen_join_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -217,6 +497,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_class_member: {
+        Args: { _class_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_class_teacher: {
+        Args: { _class_id: string; _user_id: string }
+        Returns: boolean
+      }
+      join_class_with_code: { Args: { _code: string }; Returns: string }
     }
     Enums: {
       app_role: "student" | "teacher"
