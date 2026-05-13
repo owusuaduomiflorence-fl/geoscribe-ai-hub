@@ -8,7 +8,19 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_app/chatbot")({ component: Chatbot });
+export const Route = createFileRoute("/_app/chatbot")({
+  component: Chatbot,
+  head: () => ({
+    meta: [
+      { title: "AI Geography Tutor — Geoguide AI" },
+      { name: "description", content: "Chat with a GES-aligned AI geography tutor and get clear, syllabus-grounded answers anytime." },
+      { property: "og:title", content: "AI Geography Tutor — Geoguide AI" },
+      { property: "og:description", content: "Conversational AI tutor grounded in the GES geography syllabus." },
+      { property: "og:url", content: "https://geoscribe-ai-hub.lovable.app/chatbot" },
+    ],
+    links: [{ rel: "canonical", href: "https://geoscribe-ai-hub.lovable.app/chatbot" }],
+  }),
+});
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -244,9 +256,10 @@ function Chatbot() {
                 }
               }}
               placeholder="Ask a geography question..."
+              aria-label="Ask a geography question"
               className="flex-1 rounded-lg bg-card border border-border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
-            <Button onClick={send} disabled={streaming || !input.trim()}>
+            <Button onClick={send} disabled={streaming || !input.trim()} aria-label="Send message">
               <Send className="h-4 w-4" />
             </Button>
           </div>

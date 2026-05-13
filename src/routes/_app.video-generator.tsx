@@ -8,7 +8,19 @@ import { Loader2, Sparkles, Film, Image as ImageIcon, Layers } from "lucide-reac
 import { toast } from "sonner";
 import { LessonPlayer } from "@/components/LessonPlayer";
 
-export const Route = createFileRoute("/_app/video-generator")({ component: VideoGen });
+export const Route = createFileRoute("/_app/video-generator")({
+  component: VideoGen,
+  head: () => ({
+    meta: [
+      { title: "Video Generator — Geoguide AI" },
+      { name: "description", content: "Generate motion video lessons, multi-clip explainers, or storyboards for any geography topic with Geoguide AI." },
+      { property: "og:title", content: "Video Generator — Geoguide AI" },
+      { property: "og:description", content: "Motion video lessons for geography." },
+      { property: "og:url", content: "https://geoscribe-ai-hub.lovable.app/video-generator" },
+    ],
+    links: [{ rel: "canonical", href: "https://geoscribe-ai-hub.lovable.app/video-generator" }],
+  }),
+});
 
 type Mode = "clip" | "lesson" | "storyboard";
 
@@ -105,9 +117,10 @@ function VideoGen() {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="e.g. The water cycle explained for JHS students"
+            aria-label="Video prompt"
             className="flex-1 rounded-lg bg-background border border-border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
-          <Button onClick={generate} disabled={busy || !prompt.trim()} size="lg">
+          <Button onClick={generate} disabled={busy || !prompt.trim()} size="lg" aria-label="Generate video">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Sparkles className="h-4 w-4 mr-1" /> Generate</>}
           </Button>
         </div>

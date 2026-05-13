@@ -7,7 +7,19 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_app/image-generator")({ component: ImageGen });
+export const Route = createFileRoute("/_app/image-generator")({
+  component: ImageGen,
+  head: () => ({
+    meta: [
+      { title: "Image Generator — Geoguide AI" },
+      { name: "description", content: "Generate vivid, classroom-ready geography illustrations on demand with the Geoguide AI image generator." },
+      { property: "og:title", content: "Image Generator — Geoguide AI" },
+      { property: "og:description", content: "On-demand geography illustrations." },
+      { property: "og:url", content: "https://geoscribe-ai-hub.lovable.app/image-generator" },
+    ],
+    links: [{ rel: "canonical", href: "https://geoscribe-ai-hub.lovable.app/image-generator" }],
+  }),
+});
 
 function ImageGen() {
   const { user, session } = useAuth();
@@ -66,9 +78,10 @@ function ImageGen() {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="e.g. Cross-section of a volcano with labelled magma chamber"
+            aria-label="Image prompt"
             className="flex-1 rounded-lg bg-background border border-border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
-          <Button onClick={generate} disabled={busy || !prompt.trim()} size="lg">
+          <Button onClick={generate} disabled={busy || !prompt.trim()} size="lg" aria-label="Generate image">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Sparkles className="h-4 w-4 mr-1" /> Generate</>}
           </Button>
         </div>

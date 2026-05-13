@@ -4,7 +4,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { MessageSquare, Image as ImageIcon, Video, BookOpen, Sparkles } from "lucide-react";
 
-export const Route = createFileRoute("/_app/dashboard")({ component: Dashboard });
+export const Route = createFileRoute("/_app/dashboard")({
+  component: Dashboard,
+  head: () => ({
+    meta: [
+      { title: "Dashboard — Geoguide AI" },
+      { name: "description", content: "Your personal Geoguide AI overview: recent chats, generated visuals, and study journal at a glance." },
+      { property: "og:title", content: "Dashboard — Geoguide AI" },
+      { property: "og:description", content: "Personal study overview." },
+      { property: "og:url", content: "https://geoscribe-ai-hub.lovable.app/dashboard" },
+    ],
+    links: [{ rel: "canonical", href: "https://geoscribe-ai-hub.lovable.app/dashboard" }],
+  }),
+});
 
 function Dashboard() {
   const { user } = useAuth();
