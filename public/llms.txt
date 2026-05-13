@@ -1,0 +1,20 @@
+# Geoguide AI
+
+> A GES-aligned geography learning platform with an AI tutor, image and video generators, quizzes, worksheets, classroom tools, and a personal study journal.
+
+Geoguide AI helps Ghanaian students and teachers explore geography through conversational AI, on-demand visuals, motion videos, and structured assessments. Teachers can create classes, assign quizzes/worksheets, and grade work; students can join via codes, complete assignments, and play educational games.
+
+## Pages
+
+- [Home](/): Landing page introducing Geoguide AI.
+- [About](/about): The mission behind Geoguide AI and the GES alignment.
+- [Sign in](/auth): Sign in or create a student or teacher account.
+
+## Optional
+
+- [Dashboard](/dashboard): Personal study overview (requires sign-in).
+- [AI Tutor](/chatbot): Conversational geography tutor (requires sign-in).
+- [Image Generator](/image-generator): Generate classroom illustrations (requires sign-in).
+- [Video Generator](/video-generator): Motion video lessons and storyboards (requires sign-in).
+- [Journal](/journal): Personal study notes (requires sign-in).
+- [Games](/games): Geography mini-games (requires sign-in).

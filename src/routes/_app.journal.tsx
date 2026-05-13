@@ -7,7 +7,19 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2, Search, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_app/journal")({ component: Journal });
+export const Route = createFileRoute("/_app/journal")({
+  component: Journal,
+  head: () => ({
+    meta: [
+      { title: "Journal — Geoguide AI" },
+      { name: "description", content: "Save and revisit personal study notes from your geography lessons in your Geoguide AI journal." },
+      { property: "og:title", content: "Journal — Geoguide AI" },
+      { property: "og:description", content: "Personal geography study notes." },
+      { property: "og:url", content: "https://geoscribe-ai-hub.lovable.app/journal" },
+    ],
+    links: [{ rel: "canonical", href: "https://geoscribe-ai-hub.lovable.app/journal" }],
+  }),
+});
 
 function Journal() {
   const { user } = useAuth();
@@ -88,6 +100,7 @@ function Journal() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search entries..."
+          aria-label="Search journal entries"
           className="w-full pl-9 rounded-lg bg-card border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
@@ -107,6 +120,7 @@ function Journal() {
               </button>
               <button
                 onClick={() => remove(e.id)}
+                aria-label={`Delete entry ${e.title}`}
                 className="opacity-0 group-hover:opacity-100 transition text-muted-foreground hover:text-destructive"
               >
                 <Trash2 className="h-4 w-4" />
@@ -140,18 +154,20 @@ function Journal() {
             className="w-full max-w-2xl rounded-2xl border border-border bg-card p-6 shadow-card"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-semibold text-lg">{editing.id ? "Edit entry" : "New entry"}</h3>
+            <h2 className="font-semibold text-lg">{editing.id ? "Edit entry" : "New entry"}</h2>
             <input
               autoFocus
               value={editing.title}
               onChange={(e) => setEditing({ ...editing, title: e.target.value })}
               placeholder="Title"
+              aria-label="Entry title"
               className="mt-4 w-full rounded-lg bg-background border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <textarea
               value={editing.content}
               onChange={(e) => setEditing({ ...editing, content: e.target.value })}
               placeholder="Write your notes..."
+              aria-label="Entry content"
               rows={10}
               className="mt-3 w-full rounded-lg bg-background border border-border px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
             />
@@ -159,6 +175,7 @@ function Journal() {
               value={editing.tags}
               onChange={(e) => setEditing({ ...editing, tags: e.target.value })}
               placeholder="Tags (comma separated)"
+              aria-label="Tags"
               className="mt-3 w-full rounded-lg bg-background border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <div className="mt-5 flex justify-end gap-2">

@@ -23,7 +23,9 @@ function AppLayout() {
 
   return (
     <AppShell>
-      <Outlet />
+      <main>
+        <Outlet />
+      </main>
     </AppShell>
   );
 }

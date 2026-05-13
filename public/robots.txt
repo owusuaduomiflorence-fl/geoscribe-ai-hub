@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://geoscribe-ai-hub.lovable.app/sitemap.xml

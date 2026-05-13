@@ -1,7 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Globe2, GraduationCap, Sparkles } from "lucide-react";
 
-export const Route = createFileRoute("/_app/about")({ component: About });
+export const Route = createFileRoute("/_app/about")({
+  component: About,
+  head: () => ({
+    meta: [
+      { title: "About Geoguide AI" },
+      { name: "description", content: "Geoguide AI is a GES-aligned geography learning platform pairing an AI tutor with rich visual tools for Ghanaian students and teachers." },
+      { property: "og:title", content: "About Geoguide AI" },
+      { property: "og:description", content: "GES-aligned geography platform built around an AI tutor and visual tools." },
+      { property: "og:url", content: "https://geoscribe-ai-hub.lovable.app/about" },
+    ],
+    links: [{ rel: "canonical", href: "https://geoscribe-ai-hub.lovable.app/about" }],
+  }),
+});
 
 function About() {
   return (

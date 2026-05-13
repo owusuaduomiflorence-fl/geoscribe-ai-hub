@@ -11,11 +11,23 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/")({ component: Landing });
+export const Route = createFileRoute("/")({
+  component: Landing,
+  head: () => ({
+    meta: [
+      { title: "Geoguide AI — GES Geography Learning, Powered by AI" },
+      { name: "description", content: "Master the GES geography syllabus with an AI tutor, on-demand visuals, motion video lessons, quizzes, and a personal study journal." },
+      { property: "og:title", content: "Geoguide AI — GES Geography Learning, Powered by AI" },
+      { property: "og:description", content: "AI tutor, image & video generation, classes, quizzes, and journal — built around the GES syllabus." },
+      { property: "og:url", content: "https://geoscribe-ai-hub.lovable.app/" },
+    ],
+    links: [{ rel: "canonical", href: "https://geoscribe-ai-hub.lovable.app/" }],
+  }),
+});
 
 function Landing() {
   return (
-    <div className="min-h-screen">
+    <main className="min-h-screen">
       {/* Nav */}
       <header className="sticky top-0 z-30 backdrop-blur bg-background/70 border-b border-border">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -63,7 +75,7 @@ function Landing() {
               </Button>
             </Link>
             <a href="#features">
-              <Button size="lg" variant="outline">Learn More</Button>
+              <Button size="lg" variant="outline">Discover features</Button>
             </a>
           </div>
 
@@ -177,6 +189,6 @@ function Landing() {
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
         © {new Date().getFullYear()} Geoguide AI · Aligned with the GES Geography Syllabus
       </footer>
-    </div>
+    </main>
   );
 }
