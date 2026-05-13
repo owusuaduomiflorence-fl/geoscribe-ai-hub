@@ -164,6 +164,6 @@ function AuthPage() {
           </Button>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
