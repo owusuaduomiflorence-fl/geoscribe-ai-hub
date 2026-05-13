@@ -66,6 +66,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         crossOrigin: "anonymous",
       },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "EducationalOrganization",
+          name: "Geoguide AI",
+          url: "https://geoscribe-ai-hub.lovable.app",
+          description: "GES-aligned geography learning platform with an AI tutor, image and video generators, classes, quizzes, and a study journal.",
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
