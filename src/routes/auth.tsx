@@ -9,7 +9,19 @@ import { useAuth, type AppRole } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/auth")({ component: AuthPage });
+export const Route = createFileRoute("/auth")({
+  component: AuthPage,
+  head: () => ({
+    meta: [
+      { title: "Sign in to Geoguide AI" },
+      { name: "description", content: "Sign in or create a Geoguide AI student or teacher account to access the AI tutor, classes, quizzes, and study journal." },
+      { property: "og:title", content: "Sign in to Geoguide AI" },
+      { property: "og:description", content: "Sign in or create a student or teacher account on Geoguide AI." },
+      { property: "og:url", content: "https://geoscribe-ai-hub.lovable.app/auth" },
+    ],
+    links: [{ rel: "canonical", href: "https://geoscribe-ai-hub.lovable.app/auth" }],
+  }),
+});
 
 function AuthPage() {
   const { user, signIn, signUp, signInWithGoogle, loading } = useAuth();
@@ -59,14 +71,15 @@ function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen grid place-items-center bg-hero px-4">
+    <main className="min-h-screen grid place-items-center bg-hero px-4">
       <div className="w-full max-w-md">
-        <Link to="/" className="flex items-center justify-center gap-2 mb-8">
+        <Link to="/" className="flex items-center justify-center gap-2 mb-4">
           <div className="h-9 w-9 rounded-lg bg-gradient-primary grid place-items-center">
             <Globe2 className="h-5 w-5 text-primary-foreground" />
           </div>
           <span className="font-display font-semibold text-xl">Geoguide AI</span>
         </Link>
+        <h1 className="text-center text-2xl font-display font-semibold mb-6">Sign in to Geoguide AI</h1>
 
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <Tabs defaultValue="signin">
