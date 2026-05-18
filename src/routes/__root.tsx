@@ -15,6 +15,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "google-site-verification", content: "7QYo4FV9fJrM8SVN25NGPAhxPGufBO5vHvF4sa-rB5c" },
       { title: "Geoguide AI — Master Geography with AI" },
       {
         name: "description",
