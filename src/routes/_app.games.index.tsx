@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Map, Shuffle } from "lucide-react";
 
-export const Route = createFileRoute("/_app/games")({ component: Games });
+export const Route = createFileRoute("/_app/games/")({ component: Games });
 
 function Games() {
   return (
