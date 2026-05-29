@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Send, Plus, MessageSquare, Loader2 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/chatbot")({
@@ -231,8 +232,8 @@ function Chatbot() {
                 }`}
               >
                 {m.role === "assistant" ? (
-                  <div className="prose prose-invert prose-sm max-w-none">
-                    <ReactMarkdown>{m.content || "…"}</ReactMarkdown>
+                  <div className="prose prose-invert prose-sm max-w-none prose-table:my-2 prose-th:bg-muted/30 prose-th:px-2 prose-th:py-1 prose-td:px-2 prose-td:py-1 prose-th:border prose-td:border prose-th:border-border prose-td:border-border prose-a:text-primary prose-a:underline">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: (props) => <a {...props} target="_blank" rel="noopener noreferrer" /> }}>{m.content || "…"}</ReactMarkdown>
                   </div>
                 ) : (
                   m.content
