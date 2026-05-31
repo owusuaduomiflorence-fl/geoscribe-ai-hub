@@ -6,34 +6,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Sparkles, Film, Image as ImageIcon, Layers, Upload, Link2, Trash2 } from "lucide-react";
+import { Loader2, Upload, Link2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { LessonPlayer } from "@/components/LessonPlayer";
 
 export const Route = createFileRoute("/_app/video-generator")({
   component: VideoGen,
   head: () => ({
     meta: [
       { title: "Videos — Geoguide AI" },
-      { name: "description", content: "Upload MP4 lesson videos, embed YouTube or Vimeo, or generate AI motion videos for any geography topic." },
+      { name: "description", content: "Upload MP4 lesson videos or embed YouTube and Vimeo links. Plays directly in the browser with full audio." },
       { property: "og:title", content: "Videos — Geoguide AI" },
-      { property: "og:description", content: "Upload, embed, or AI-generate geography lesson videos." },
+      { property: "og:description", content: "Upload or embed geography lesson videos." },
       { property: "og:url", content: "https://geoscribe-ai-hub.lovable.app/video-generator" },
     ],
     links: [{ rel: "canonical", href: "https://geoscribe-ai-hub.lovable.app/video-generator" }],
   }),
 });
 
-type Tab = "upload" | "embed" | "ai";
-type AiMode = "clip" | "lesson" | "storyboard";
+type Tab = "upload" | "embed";
 
 // Convert YouTube / Vimeo URL → embed URL. Returns null if unrecognized.
 function toEmbedUrl(raw: string): string | null {
   const url = raw.trim();
-  // YouTube
   const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
   if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
-  // Vimeo
   const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   if (vm) return `https://player.vimeo.com/video/${vm[1]}`;
   return null;
@@ -65,19 +61,17 @@ function VideoGen() {
     <div className="px-6 md:px-10 py-8 md:py-12 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold">Videos</h1>
       <p className="text-muted-foreground mt-2 max-w-2xl">
-        Upload your own lesson videos, embed from YouTube or Vimeo, or generate motion videos with AI.
+        Upload your own lesson videos or paste a YouTube / Vimeo link. Videos play directly in the browser with full audio — no AI processing or edge functions involved.
       </p>
 
       <div className="mt-6 inline-flex rounded-lg border border-border bg-card p-1 gap-1">
         <TabBtn active={tab === "upload"} onClick={() => setTab("upload")} icon={Upload} label="Upload MP4" />
         <TabBtn active={tab === "embed"} onClick={() => setTab("embed")} icon={Link2} label="YouTube / Vimeo" />
-        <TabBtn active={tab === "ai"} onClick={() => setTab("ai")} icon={Sparkles} label="AI generate" />
       </div>
 
       <div className="mt-4">
         {tab === "upload" && <UploadPanel onDone={() => qc.invalidateQueries({ queryKey: ["videos"] })} />}
         {tab === "embed" && <EmbedPanel onDone={() => qc.invalidateQueries({ queryKey: ["videos"] })} />}
-        {tab === "ai" && <AiPanel onDone={() => qc.invalidateQueries({ queryKey: ["videos"] })} />}
       </div>
 
       <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -109,8 +103,8 @@ function VideoGen() {
             {(v.kind === "upload" || v.kind === "clip") && v.video_url && (
               <video src={v.video_url} controls playsInline className="w-full aspect-video rounded-lg bg-black" />
             )}
-            {v.kind === "lesson" && Array.isArray(v.clips) && <LessonPlayer clips={v.clips as any} />}
-            {(v.kind === "storyboard" || (!v.kind && v.scenes)) && Array.isArray(v.scenes) && (
+            {/* Legacy storyboards from older AI generations — show stills only */}
+            {v.kind === "storyboard" && Array.isArray(v.scenes) && (
               <div className="grid grid-cols-2 gap-2">
                 {(v.scenes as any[]).map((s, i) => (
                   <div key={i} className="rounded-lg overflow-hidden border border-border">
@@ -123,7 +117,7 @@ function VideoGen() {
           </div>
         ))}
         {(!history || history.length === 0) && (
-          <div className="text-sm text-muted-foreground">No videos yet.</div>
+          <div className="text-sm text-muted-foreground">No videos yet. Upload an MP4 or paste a YouTube link to get started.</div>
         )}
       </div>
     </div>
@@ -237,64 +231,5 @@ function EmbedPanel({ onDone }: { onDone: () => void }) {
         <Link2 className="h-4 w-4 mr-1" /> Add video
       </Button>
     </div>
-  );
-}
-
-/* ---------------- AI generate ---------------- */
-function AiPanel({ onDone }: { onDone: () => void }) {
-  const { user } = useAuth();
-  const [prompt, setPrompt] = useState("");
-  const [mode, setMode] = useState<AiMode>("clip");
-  const [busy, setBusy] = useState(false);
-
-  const generate = async () => {
-    if (!user || !prompt.trim()) return;
-    setBusy(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("generate-video", { body: { prompt: prompt.trim(), mode } });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-      const insertRow: Record<string, unknown> = { user_id: user.id, prompt: prompt.trim(), kind: data.kind, status: "completed" };
-      if (data.kind === "storyboard") { insertRow.scenes = data.scenes; insertRow.poster_url = data.poster_url; }
-      else if (data.kind === "clip") { insertRow.video_url = data.video_url; insertRow.clips = data.clips; }
-      else if (data.kind === "lesson") { insertRow.clips = data.clips; }
-      const { error: insErr } = await supabase.from("generated_videos").insert(insertRow as never);
-      if (insErr) throw insErr;
-      toast.success(mode === "storyboard" ? "Storyboard ready" : "Video ready");
-      setPrompt("");
-      onDone();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Generation failed");
-    } finally { setBusy(false); }
-  };
-
-  return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <ModeCard active={mode === "clip"} onClick={() => setMode("clip")} icon={Film} title="Single clip" desc="One ~8s motion video." />
-        <ModeCard active={mode === "lesson"} onClick={() => setMode("lesson")} icon={Layers} title="Multi-clip lesson" desc="3 motion clips back-to-back." />
-        <ModeCard active={mode === "storyboard"} onClick={() => setMode("storyboard")} icon={ImageIcon} title="Storyboard" desc="4 still images with captions." />
-      </div>
-      <div className="rounded-2xl border border-border bg-gradient-card p-5 flex flex-col md:flex-row gap-3">
-        <Input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="e.g. The water cycle explained for JHS students" className="flex-1" />
-        <Button onClick={generate} disabled={busy || !prompt.trim()} size="lg">
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Sparkles className="h-4 w-4 mr-1" /> Generate</>}
-        </Button>
-      </div>
-      {mode !== "storyboard" && <p className="text-xs text-muted-foreground">Motion video can take 30–90 seconds.</p>}
-    </div>
-  );
-}
-
-function ModeCard({ active, onClick, icon: Icon, title, desc }: { active: boolean; onClick: () => void; icon: typeof Film; title: string; desc: string }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`text-left rounded-xl border p-4 transition-colors ${active ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-card/80"}`}
-    >
-      <Icon className="h-5 w-5 mb-2 text-primary" />
-      <div className="font-semibold text-sm">{title}</div>
-      <div className="text-xs text-muted-foreground mt-1">{desc}</div>
-    </button>
   );
 }
