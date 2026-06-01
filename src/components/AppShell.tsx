@@ -16,9 +16,12 @@ import {
   Gamepad2,
   FileText,
   School,
+  UserCircle,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
+import { useProfile } from "@/hooks/use-profile";
+import { displayNameFor } from "@/lib/display-name";
 import { Button } from "@/components/ui/button";
 
 const studentLinks = [
