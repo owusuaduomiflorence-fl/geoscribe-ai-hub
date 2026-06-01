@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useProfile } from "@/hooks/use-profile";
+import { displayNameFor } from "@/lib/display-name";
 import { MessageSquare, Image as ImageIcon, Video, BookOpen, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/_app/dashboard")({
@@ -19,7 +21,9 @@ export const Route = createFileRoute("/_app/dashboard")({
 });
 
 function Dashboard() {
-  const { user } = useAuth();
+  const { user, isTeacher } = useAuth();
+  const { data: profile } = useProfile();
+  const firstName = displayNameFor(profile, user?.email, "first", isTeacher ? "Teacher" : "Student");
 
   const { data: stats } = useQuery({
     queryKey: ["dashboard-stats", user?.id],
@@ -78,7 +82,7 @@ function Dashboard() {
         Welcome back
       </div>
       <h1 className="mt-1 text-3xl md:text-4xl font-bold">
-        Hi {user?.email?.split("@")[0]} 👋
+        Hi {firstName} 👋
       </h1>
       <p className="text-muted-foreground mt-2">
         Pick up where you left off, or start something new.

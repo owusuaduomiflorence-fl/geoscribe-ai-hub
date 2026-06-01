@@ -336,19 +336,28 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           display_name: string | null
+          display_preference: string
+          first_name: string | null
           id: string
+          last_name: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
+          display_preference?: string
+          first_name?: string | null
           id: string
+          last_name?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
+          display_preference?: string
+          first_name?: string | null
           id?: string
+          last_name?: string | null
         }
         Relationships: []
       }
