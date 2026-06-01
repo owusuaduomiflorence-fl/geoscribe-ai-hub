@@ -94,12 +94,20 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="px-3 py-4 border-t border-sidebar-border space-y-2">
-          <div className="px-3 flex items-center justify-between gap-2">
-            <span className="text-xs text-sidebar-foreground/60 truncate">{user?.email}</span>
+          <Link
+            to="/profile"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent/50"
+          >
+            <UserCircle className="h-5 w-5 text-primary" />
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-semibold truncate">{greetName}</div>
+              <div className="text-[11px] text-sidebar-foreground/60 truncate">{user?.email}</div>
+            </div>
             <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-primary/15 text-primary font-semibold">
               {isTeacher ? "Teacher" : "Student"}
             </span>
-          </div>
+          </Link>
           <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleSignOut}>
             <LogOut className="h-4 w-4 mr-2" /> Sign out
           </Button>
