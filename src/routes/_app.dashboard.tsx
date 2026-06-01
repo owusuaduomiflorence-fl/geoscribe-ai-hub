@@ -82,7 +82,7 @@ function Dashboard() {
         Welcome back
       </div>
       <h1 className="mt-1 text-3xl md:text-4xl font-bold">
-        Hi {user?.email?.split("@")[0]} 👋
+        Hi {firstName} 👋
       </h1>
       <p className="text-muted-foreground mt-2">
         Pick up where you left off, or start something new.
