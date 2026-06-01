@@ -1,17 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Users, GraduationCap, ClipboardList, FileText, BookOpen, MessageSquare } from "lucide-react";
 import { TeacherGuard } from "@/components/TeacherGuard";
+import { useAuth } from "@/lib/auth";
+import { useProfile } from "@/hooks/use-profile";
+import { displayNameFor } from "@/lib/display-name";
 
 export const Route = createFileRoute("/_app/teacher")({ component: () => <TeacherGuard><Portal /></TeacherGuard> });
 
 function Portal() {
+  const { user } = useAuth();
+  const { data: profile } = useProfile();
+  const fullName = displayNameFor(profile, user?.email, "full", "Teacher");
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
       <div className="flex items-center gap-3 mb-2">
         <div className="h-10 w-10 rounded-lg bg-gradient-primary grid place-items-center">
           <Users className="h-5 w-5 text-primary-foreground" />
         </div>
-        <h1 className="font-display text-3xl font-semibold">Teacher Portal</h1>
+        <h1 className="font-display text-3xl font-semibold">Welcome back, {fullName}</h1>
       </div>
       <p className="text-muted-foreground mb-8">Manage classes, build quizzes & worksheets, and grade student work.</p>
 
