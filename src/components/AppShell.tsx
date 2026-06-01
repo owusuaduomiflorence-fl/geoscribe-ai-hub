@@ -47,6 +47,8 @@ const teacherExtraLinks = [
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { user, isTeacher, signOut } = useAuth();
+  const { data: profile } = useProfile();
+  const greetName = displayNameFor(profile, user?.email, "auto", isTeacher ? "Teacher" : "Student");
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
