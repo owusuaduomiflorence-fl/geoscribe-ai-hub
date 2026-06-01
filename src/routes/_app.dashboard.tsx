@@ -21,7 +21,9 @@ export const Route = createFileRoute("/_app/dashboard")({
 });
 
 function Dashboard() {
-  const { user } = useAuth();
+  const { user, isTeacher } = useAuth();
+  const { data: profile } = useProfile();
+  const firstName = displayNameFor(profile, user?.email, "first", isTeacher ? "Teacher" : "Student");
 
   const { data: stats } = useQuery({
     queryKey: ["dashboard-stats", user?.id],
