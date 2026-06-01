@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useProfile } from "@/hooks/use-profile";
+import { displayNameFor } from "@/lib/display-name";
 import { MessageSquare, Image as ImageIcon, Video, BookOpen, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/_app/dashboard")({
