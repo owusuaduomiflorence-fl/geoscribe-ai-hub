@@ -2,10 +2,7 @@
 //   - clip: single 10s motion video
 //   - lesson: 3 motion clips played back-to-back (client-side)
 //   - storyboard: 4 still images with captions (fallback)
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders, requireUser } from "../_shared/auth.ts";
 
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 

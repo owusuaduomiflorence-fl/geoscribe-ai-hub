@@ -2,13 +2,8 @@ import { corsHeaders, requireUser } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
+  const auth = await requireUser(req);
+  if (auth.response) return auth.response;
   try {
     const { prompt } = await req.json();
     if (!prompt || typeof prompt !== "string")
