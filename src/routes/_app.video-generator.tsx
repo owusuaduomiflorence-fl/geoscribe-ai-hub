@@ -38,7 +38,7 @@ function toEmbedUrl(raw: string): string | null {
 function VideoGen() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [tab, setTab] = useState<Tab>("upload");
+  const [tab, setTab] = useState<Tab>("search");
 
   const { data: history, isLoading } = useQuery({
     queryKey: ["videos", user?.id],
