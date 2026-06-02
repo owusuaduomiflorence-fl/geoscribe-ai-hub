@@ -66,15 +66,17 @@ function VideoGen() {
     <div className="px-6 md:px-10 py-8 md:py-12 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold">Videos</h1>
       <p className="text-muted-foreground mt-2 max-w-2xl">
-        Upload a lesson video (MP4/WebM/MOV) or paste a YouTube / Vimeo link. Videos play directly in the browser with full audio.
+        Search YouTube for a topic, upload your own MP4, or paste a YouTube / Vimeo link. All videos play directly in the browser with full audio.
       </p>
 
-      <div className="mt-6 inline-flex rounded-lg border border-border bg-card p-1 gap-1">
+      <div className="mt-6 inline-flex rounded-lg border border-border bg-card p-1 gap-1 flex-wrap">
+        <TabBtn active={tab === "search"} onClick={() => setTab("search")} icon={Search} label="Search YouTube" />
         <TabBtn active={tab === "upload"} onClick={() => setTab("upload")} icon={Upload} label="Upload MP4" />
-        <TabBtn active={tab === "embed"} onClick={() => setTab("embed")} icon={Link2} label="YouTube / Vimeo" />
+        <TabBtn active={tab === "embed"} onClick={() => setTab("embed")} icon={Link2} label="Paste link" />
       </div>
 
       <div className="mt-4">
+        {tab === "search" && <SearchPanel onDone={refresh} />}
         {tab === "upload" && <UploadPanel onDone={refresh} />}
         {tab === "embed" && <EmbedPanel onDone={refresh} />}
       </div>
