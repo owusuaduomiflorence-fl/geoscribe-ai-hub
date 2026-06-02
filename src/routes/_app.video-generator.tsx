@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_app/video-generator")({
   }),
 });
 
-type Tab = "upload" | "embed";
+type Tab = "search" | "upload" | "embed";
 
 // Convert YouTube / Vimeo URL → embed URL. Returns null if unrecognized.
 function toEmbedUrl(raw: string): string | null {
