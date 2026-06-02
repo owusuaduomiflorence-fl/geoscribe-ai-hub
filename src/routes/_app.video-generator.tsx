@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Upload, Link2, Trash2, CheckCircle2, AlertCircle, Video as VideoIcon } from "lucide-react";
+import { Loader2, Upload, Link2, Trash2, CheckCircle2, AlertCircle, Video as VideoIcon, Search, Play, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/video-generator")({
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_app/video-generator")({
   }),
 });
 
-type Tab = "upload" | "embed";
+type Tab = "search" | "upload" | "embed";
 
 // Convert YouTube / Vimeo URL → embed URL. Returns null if unrecognized.
 function toEmbedUrl(raw: string): string | null {
@@ -38,7 +38,7 @@ function toEmbedUrl(raw: string): string | null {
 function VideoGen() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [tab, setTab] = useState<Tab>("upload");
+  const [tab, setTab] = useState<Tab>("search");
 
   const { data: history, isLoading } = useQuery({
     queryKey: ["videos", user?.id],
@@ -66,15 +66,17 @@ function VideoGen() {
     <div className="px-6 md:px-10 py-8 md:py-12 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold">Videos</h1>
       <p className="text-muted-foreground mt-2 max-w-2xl">
-        Upload a lesson video (MP4/WebM/MOV) or paste a YouTube / Vimeo link. Videos play directly in the browser with full audio.
+        Search YouTube for a topic, upload your own MP4, or paste a YouTube / Vimeo link. All videos play directly in the browser with full audio.
       </p>
 
-      <div className="mt-6 inline-flex rounded-lg border border-border bg-card p-1 gap-1">
+      <div className="mt-6 inline-flex rounded-lg border border-border bg-card p-1 gap-1 flex-wrap">
+        <TabBtn active={tab === "search"} onClick={() => setTab("search")} icon={Search} label="Search YouTube" />
         <TabBtn active={tab === "upload"} onClick={() => setTab("upload")} icon={Upload} label="Upload MP4" />
-        <TabBtn active={tab === "embed"} onClick={() => setTab("embed")} icon={Link2} label="YouTube / Vimeo" />
+        <TabBtn active={tab === "embed"} onClick={() => setTab("embed")} icon={Link2} label="Paste link" />
       </div>
 
       <div className="mt-4">
+        {tab === "search" && <SearchPanel onDone={refresh} />}
         {tab === "upload" && <UploadPanel onDone={refresh} />}
         {tab === "embed" && <EmbedPanel onDone={refresh} />}
       </div>
@@ -331,6 +333,159 @@ function EmbedPanel({ onDone }: { onDone: () => void }) {
         {busy ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Link2 className="h-4 w-4 mr-1" />}
         {busy ? "Saving…" : "Add video"}
       </Button>
+    </div>
+  );
+}
+
+/* ---------------- YouTube search ---------------- */
+type YTVideo = {
+  id: string;
+  title: string;
+  description: string;
+  channel: string;
+  thumbnail: string;
+  embed_url: string;
+  watch_url: string;
+};
+
+function SearchPanel({ onDone }: { onDone: () => void }) {
+  const { user } = useAuth();
+  const [query, setQuery] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [results, setResults] = useState<YTVideo[]>([]);
+  const [playing, setPlaying] = useState<string | null>(null);
+  const [saving, setSaving] = useState<string | null>(null);
+
+  const search = async () => {
+    setError(null);
+    if (!query.trim()) return setError("Type a topic to search.");
+    setBusy(true);
+    setResults([]);
+    setPlaying(null);
+    try {
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/youtube-search`;
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({ query: query.trim(), max: 5 }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data?.error || "Search failed");
+      const vids: YTVideo[] = data.videos ?? [];
+      if (vids.length === 0) setError("No videos found. Try a different topic.");
+      setResults(vids);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Search failed";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const saveToLibrary = async (v: YTVideo) => {
+    if (!user) return toast.error("Sign in to save");
+    setSaving(v.id);
+    try {
+      const { error } = await supabase.from("generated_videos").insert({
+        user_id: user.id,
+        prompt: v.title,
+        kind: "embed",
+        status: "completed",
+        video_url: v.embed_url,
+      });
+      if (error) throw error;
+      toast.success("Saved to your library");
+      onDone();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save");
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-border bg-gradient-card p-5 space-y-4">
+      <div>
+        <label className="text-sm font-medium block mb-1">Topic</label>
+        <div className="flex gap-2">
+          <Input
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setError(null); }}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); search(); } }}
+            placeholder='e.g. "shield volcano", "water cycle", "Ghana climate"'
+          />
+          <Button onClick={search} disabled={busy || !query.trim()}>
+            {busy ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Search className="h-4 w-4 mr-1" />}
+            {busy ? "Searching…" : "Search"}
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">
+          We search YouTube for embeddable, classroom-safe geography videos.
+        </p>
+      </div>
+
+      {error && (
+        <div className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-2 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" /> <span>{error}</span>
+        </div>
+      )}
+
+      {results.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {results.map((v) => (
+            <div key={v.id} className="rounded-xl border border-border bg-card overflow-hidden flex flex-col">
+              {playing === v.id ? (
+                <div className="aspect-video bg-black">
+                  <iframe
+                    src={`${v.embed_url}?autoplay=1`}
+                    title={v.title}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                <button
+                  onClick={() => setPlaying(v.id)}
+                  className="relative aspect-video bg-black group"
+                  aria-label={`Play ${v.title}`}
+                >
+                  <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="rounded-full bg-primary/90 text-primary-foreground p-3 shadow-lg group-hover:scale-110 transition-transform">
+                      <Play className="h-6 w-6 fill-current" />
+                    </div>
+                  </div>
+                </button>
+              )}
+              <div className="p-3 space-y-2 flex-1 flex flex-col">
+                <h3 className="font-semibold text-sm line-clamp-2">{v.title}</h3>
+                <p className="text-xs text-muted-foreground line-clamp-2">{v.description}</p>
+                <p className="text-xs text-muted-foreground">{v.channel}</p>
+                <div className="flex gap-2 mt-auto pt-1">
+                  <Button size="sm" variant="outline" onClick={() => saveToLibrary(v)} disabled={saving === v.id}>
+                    {saving === v.id ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Plus className="h-3.5 w-3.5 mr-1" />}
+                    Save
+                  </Button>
+                  <a
+                    href={v.watch_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-muted-foreground hover:text-foreground self-center"
+                  >
+                    Open on YouTube ↗
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

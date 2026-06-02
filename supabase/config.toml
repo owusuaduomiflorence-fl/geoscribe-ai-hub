@@ -3,6 +3,9 @@ project_id = "gnclzxgemzairuwytzcl"
 [functions.chat]
 verify_jwt = false
 
+[functions.youtube-search]
+verify_jwt = false
+
 [functions.generate-image]
 verify_jwt = true
 
