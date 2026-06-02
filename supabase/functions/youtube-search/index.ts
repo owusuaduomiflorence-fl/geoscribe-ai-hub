@@ -1,13 +1,12 @@
 // Searches YouTube for educational videos by topic.
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders, requireUser } from "../_shared/auth.ts";
 
 const YT_KEY = Deno.env.get("YOUTUBE_API_KEY");
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const auth = await requireUser(req);
+  if (auth.response) return auth.response;
   try {
     if (!YT_KEY) throw new Error("YOUTUBE_API_KEY not configured");
     const { query, max = 5 } = await req.json();

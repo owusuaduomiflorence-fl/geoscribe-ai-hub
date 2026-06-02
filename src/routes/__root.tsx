@@ -130,11 +130,14 @@ function NotFound() {
 }
 
 function ErrComp({ error }: { error: Error }) {
+  if (import.meta.env.DEV) console.error("Route error:", error);
   return (
     <div className="min-h-screen grid place-items-center px-4 text-center">
       <div>
         <h1 className="text-xl font-semibold">Something went wrong</h1>
-        <p className="text-sm text-muted-foreground mt-2">{error.message}</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          {import.meta.env.DEV ? error.message : "An unexpected error occurred. Please try again."}
+        </p>
       </div>
     </div>
   );

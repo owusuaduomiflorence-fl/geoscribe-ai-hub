@@ -1,10 +1,10 @@
 project_id = "gnclzxgemzairuwytzcl"
 
 [functions.chat]
-verify_jwt = false
+verify_jwt = true
 
 [functions.youtube-search]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-image]
 verify_jwt = true

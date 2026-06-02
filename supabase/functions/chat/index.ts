@@ -1,10 +1,5 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders, requireUser } from "../_shared/auth.ts";
 
 const SYSTEM_PROMPT = `You are Geoguide AI, a friendly geography tutor aligned with the Ghana Education Service (GES) Geography syllabus (JHS and SHS).
 
@@ -42,6 +37,8 @@ Never skip the table. Never add an extra column. Never use placeholder URLs.`;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const auth = await requireUser(req);
+  if (auth.response) return auth.response;
   try {
     const { messages } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
