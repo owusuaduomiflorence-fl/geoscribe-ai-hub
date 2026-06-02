@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Upload, Link2, Trash2, CheckCircle2, AlertCircle, Video as VideoIcon } from "lucide-react";
+import { Loader2, Upload, Link2, Trash2, CheckCircle2, AlertCircle, Video as VideoIcon, Search, Play, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/video-generator")({
