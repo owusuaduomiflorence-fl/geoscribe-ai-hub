@@ -5,6 +5,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 export const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
 };
 
 export async function requireUser(req: Request) {
@@ -12,7 +13,7 @@ export async function requireUser(req: Request) {
   if (!authHeader?.startsWith("Bearer ")) {
     return {
       user: null,
-      response: new Response(JSON.stringify({ error: "Unauthorized" }), {
+      response: new Response(JSON.stringify({ error: "Unauthorized: missing token" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }),
@@ -28,7 +29,7 @@ export async function requireUser(req: Request) {
   if (error || !data?.user) {
     return {
       user: null,
-      response: new Response(JSON.stringify({ error: "Unauthorized" }), {
+      response: new Response(JSON.stringify({ error: "Unauthorized: invalid token" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }),
