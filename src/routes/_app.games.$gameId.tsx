@@ -1,6 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { QuizGame } from "@/components/games/QuizGame";
 import { MatchGame } from "@/components/games/MatchGame";
+import { Button } from "@/components/ui/button";
 import { 
   GAMES, 
   EUROPEAN_CAPITALS, 
@@ -69,6 +70,3 @@ function GamePage() {
     return <MatchGame title={game.title} gameId={game.id} pairs={questions} />;
   }
 }
-
-import { Button } from "@/components/ui/button";
-import { Link } from "@tanstack/react-router";
