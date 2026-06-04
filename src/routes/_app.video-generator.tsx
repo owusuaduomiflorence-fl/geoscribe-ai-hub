@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_app/video-generator")({
   }),
 });
 
-type Tab = "search" | "upload" | "embed";
+type Tab = "search" | "upload" | "embed" | "storyboard";
 
 // Convert YouTube / Vimeo URL → embed URL. Returns null if unrecognized.
 function toEmbedUrl(raw: string): string | null {
@@ -74,12 +74,14 @@ function VideoGen() {
         <TabBtn active={tab === "search"} onClick={() => setTab("search")} icon={Search} label="Search YouTube" />
         <TabBtn active={tab === "upload"} onClick={() => setTab("upload")} icon={Upload} label="Upload MP4" />
         <TabBtn active={tab === "embed"} onClick={() => setTab("embed")} icon={Link2} label="Paste link" />
+        <TabBtn active={tab === "storyboard"} onClick={() => setTab("storyboard")} icon={VideoIcon} label="Storyboard" />
       </div>
 
       <div className="mt-4">
         {tab === "search" && <SearchPanel onDone={refresh} />}
         {tab === "upload" && <UploadPanel onDone={refresh} />}
         {tab === "embed" && <EmbedPanel onDone={refresh} />}
+        {tab === "storyboard" && <StoryboardPanel onDone={refresh} />}
       </div>
 
       <div className="mt-10">
