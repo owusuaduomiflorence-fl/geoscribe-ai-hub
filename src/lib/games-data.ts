@@ -3,7 +3,7 @@ export interface GameInfo {
   title: string;
   description: string;
   type: "quiz" | "match";
-  category: "capitals" | "terms" | "physical" | "landmarks";
+  category: "capitals" | "terms" | "physical" | "landmarks" | "oceans";
   icon: string;
 }
 
@@ -72,6 +72,22 @@ export const GAMES: GameInfo[] = [
     category: "landmarks",
     icon: "Compass",
   },
+  {
+    id: "oceans",
+    title: "Oceans & Seas",
+    description: "Test your knowledge of the world's major bodies of water.",
+    type: "quiz",
+    category: "oceans",
+    icon: "Waves",
+  },
+  {
+    id: "tectonics",
+    title: "Tectonic Plates",
+    description: "Match tectonic plates with their major features or locations.",
+    type: "match",
+    category: "physical",
+    icon: "Layers",
+  },
 ];
 
 export const AFRICAN_CAPITALS: [string, string][] = [
@@ -139,4 +155,26 @@ export const LANDMARKS: [string, string][] = [
   ["Great Pyramid of Giza", "Egypt"], ["Eiffel Tower", "France"], ["Great Wall of China", "China"], ["Machu Picchu", "Peru"],
   ["Taj Mahal", "India"], ["Statue of Liberty", "USA"], ["Colosseum", "Italy"], ["Christ the Redeemer", "Brazil"],
   ["Mount Everest", "Nepal/China"], ["Angkor Wat", "Cambodia"], ["Petra", "Jordan"], ["Easter Island Moai", "Chile"],
+];
+
+export const OCEANS: [string, string][] = [
+  ["Which is the largest ocean?", "Pacific Ocean"],
+  ["Which ocean lies between the Americas and Europe/Africa?", "Atlantic Ocean"],
+  ["Which ocean is the smallest and shallowest?", "Arctic Ocean"],
+  ["Which ocean is south of Asia and west of Australia?", "Indian Ocean"],
+  ["Which ocean encircles Antarctica?", "Southern Ocean"],
+  ["The deepest part of the ocean, the Mariana Trench, is in which ocean?", "Pacific Ocean"],
+  ["The Mediterranean Sea connects to which ocean via the Strait of Gibraltar?", "Atlantic Ocean"],
+  ["Which sea is located between Europe and Africa?", "Mediterranean Sea"],
+];
+
+export const TECTONICS: [string, string][] = [
+  ["Pacific Plate", "Largest tectonic plate, mostly oceanic"],
+  ["Convergent Boundary", "Where two plates move toward each other"],
+  ["Divergent Boundary", "Where two plates move away from each other"],
+  ["Transform Boundary", "Where two plates slide past each other"],
+  ["Subduction Zone", "Region where one plate sinks beneath another"],
+  ["Mid-Atlantic Ridge", "Famous divergent boundary in the Atlantic"],
+  ["San Andreas Fault", "Famous transform boundary in California"],
+  ["Ring of Fire", "Major area in the basin of the Pacific Ocean where many earthquakes and volcanic eruptions occur"],
 ];
