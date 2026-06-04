@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { invokeAuthenticatedFunction } from "@/lib/auth-token";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -29,8 +30,7 @@ function Quizzes() {
     if (!topic.trim() || !user) return;
     setBusy(true);
     try {
-      const { data, error } = await supabase.functions.invoke("generate-quiz", { body: { topic: topic.trim(), count: 8 } });
-      if (error) throw error;
+      const data = await invokeAuthenticatedFunction("generate-quiz", { topic: topic.trim(), count: 8 });
       if (data?.error) throw new Error(data.error);
       const { error: insErr } = await supabase.from("quizzes").insert({
         teacher_id: user.id, title: data.title || topic, topic: topic.trim(), questions: data.questions || [],
