@@ -126,27 +126,33 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          grade_level: string
           id: string
           join_code: string
           name: string
+          subject: string
           teacher_id: string
           updated_at: string
         }
         Insert: {
           created_at?: string
           description?: string | null
+          grade_level?: string
           id?: string
           join_code?: string
           name: string
+          subject?: string
           teacher_id: string
           updated_at?: string
         }
         Update: {
           created_at?: string
           description?: string | null
+          grade_level?: string
           id?: string
           join_code?: string
           name?: string
+          subject?: string
           teacher_id?: string
           updated_at?: string
         }
@@ -391,6 +397,39 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          comment: string
+          created_at: string
+          id: string
+          rating: number
+          role_label: string | null
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          comment: string
+          created_at?: string
+          id?: string
+          rating: number
+          role_label?: string | null
+          title: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          role_label?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       submissions: {
         Row: {
           answers: Json
@@ -398,6 +437,7 @@ export type Database = {
           auto_score: number | null
           graded_at: string | null
           id: string
+          manual_breakdown: Json
           manual_score: number | null
           max_score: number | null
           status: string
@@ -411,6 +451,7 @@ export type Database = {
           auto_score?: number | null
           graded_at?: string | null
           id?: string
+          manual_breakdown?: Json
           manual_score?: number | null
           max_score?: number | null
           status?: string
@@ -424,6 +465,7 @@ export type Database = {
           auto_score?: number | null
           graded_at?: string | null
           id?: string
+          manual_breakdown?: Json
           manual_score?: number | null
           max_score?: number | null
           status?: string
@@ -498,6 +540,13 @@ export type Database = {
     }
     Functions: {
       accept_class_invite: { Args: { _token: string }; Returns: string }
+      ensure_user_profile: {
+        Args: {
+          _display_name?: string
+          _role?: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: undefined
+      }
       gen_join_code: { Args: never; Returns: string }
       has_role: {
         Args: {

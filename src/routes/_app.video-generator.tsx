@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { getRequiredAccessToken } from "@/lib/auth-token";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/_app/video-generator")({
   }),
 });
 
-type Tab = "search" | "upload" | "embed";
+type Tab = "search" | "upload" | "embed" | "storyboard";
 
 // Convert YouTube / Vimeo URL → embed URL. Returns null if unrecognized.
 function toEmbedUrl(raw: string): string | null {
@@ -73,12 +74,14 @@ function VideoGen() {
         <TabBtn active={tab === "search"} onClick={() => setTab("search")} icon={Search} label="Search YouTube" />
         <TabBtn active={tab === "upload"} onClick={() => setTab("upload")} icon={Upload} label="Upload MP4" />
         <TabBtn active={tab === "embed"} onClick={() => setTab("embed")} icon={Link2} label="Paste link" />
+        <TabBtn active={tab === "storyboard"} onClick={() => setTab("storyboard")} icon={VideoIcon} label="Storyboard" />
       </div>
 
       <div className="mt-4">
         {tab === "search" && <SearchPanel onDone={refresh} />}
         {tab === "upload" && <UploadPanel onDone={refresh} />}
         {tab === "embed" && <EmbedPanel onDone={refresh} />}
+        {tab === "storyboard" && <StoryboardPanel onDone={refresh} />}
       </div>
 
       <div className="mt-10">
@@ -337,6 +340,78 @@ function EmbedPanel({ onDone }: { onDone: () => void }) {
   );
 }
 
+/* ---------------- Storyboard ---------------- */
+function StoryboardPanel({ onDone }: { onDone: () => void }) {
+  const { user } = useAuth();
+  const [prompt, setPrompt] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const generate = async () => {
+    setError(null);
+    if (!user) return setError("You must be signed in.");
+    if (!prompt.trim()) return setError("Type a geography topic for the storyboard.");
+    setBusy(true);
+    try {
+      const token = await getRequiredAccessToken();
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-video`;
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ prompt: prompt.trim(), mode: "storyboard" }),
+      });
+      const data = await resp.json();
+      if (!resp.ok || data?.error) throw new Error(data?.error || "Storyboard failed");
+      const { error: insErr } = await supabase.from("generated_videos").insert({
+        user_id: user.id,
+        prompt: data.title || prompt.trim(),
+        kind: "storyboard",
+        status: "completed",
+        poster_url: data.poster_url ?? null,
+        scenes: data.scenes ?? [],
+      });
+      if (insErr) throw insErr;
+      toast.success("Storyboard added to your library");
+      setPrompt("");
+      onDone();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Storyboard failed";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-border bg-gradient-card p-5 space-y-3">
+      <div>
+        <label className="text-sm font-medium block mb-1">Storyboard topic</label>
+        <Textarea
+          value={prompt}
+          onChange={(e) => { setPrompt(e.target.value); setError(null); }}
+          placeholder="e.g. Four scenes explaining coastal erosion in Ghana"
+          rows={3}
+        />
+        <p className="text-xs text-muted-foreground mt-1">Creates a four-scene visual lesson storyboard for classroom use.</p>
+      </div>
+      {error && (
+        <div className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-2 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" /> <span>{error}</span>
+        </div>
+      )}
+      <Button onClick={generate} disabled={busy || !prompt.trim()}>
+        {busy ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <VideoIcon className="h-4 w-4 mr-1" />}
+        {busy ? "Creating storyboard…" : "Create storyboard"}
+      </Button>
+    </div>
+  );
+}
+
 /* ---------------- YouTube search ---------------- */
 type YTVideo = {
   id: string;
@@ -365,13 +440,13 @@ function SearchPanel({ onDone }: { onDone: () => void }) {
     setPlaying(null);
     try {
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/youtube-search`;
-      const { data: sess } = await supabase.auth.getSession();
+      const token = await getRequiredAccessToken();
       const resp = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          Authorization: `Bearer ${sess.session?.access_token ?? ""}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ query: query.trim(), max: 5 }),
       });
