@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { getRequiredAccessToken } from "@/lib/auth-token";
 import { Button } from "@/components/ui/button";
 import { Send, Plus, MessageSquare, Loader2 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -105,13 +106,13 @@ function Chatbot() {
     let assistant = "";
 
     try {
-      const { data: sess } = await supabase.auth.getSession();
+      const token = await getRequiredAccessToken();
       const resp = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          Authorization: `Bearer ${sess.session?.access_token ?? ""}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ messages: [...messages, userMsg] }),
       });
