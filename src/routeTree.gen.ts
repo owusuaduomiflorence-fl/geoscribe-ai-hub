@@ -30,6 +30,7 @@ import { Route as AppTeacherClassesRouteImport } from './routes/_app.teacher.cla
 import { Route as AppTeacherAssignmentsRouteImport } from './routes/_app.teacher.assignments'
 import { Route as AppGamesTermMatchRouteImport } from './routes/_app.games.term-match'
 import { Route as AppGamesMapQuizRouteImport } from './routes/_app.games.map-quiz'
+import { Route as AppGamesGameIdRouteImport } from './routes/_app.games.$gameId'
 import { Route as AppAssignmentsIdRouteImport } from './routes/_app.assignments.$id'
 import { Route as AppTeacherWorksheetsIdRouteImport } from './routes/_app.teacher.worksheets.$id'
 import { Route as AppTeacherQuizzesIdRouteImport } from './routes/_app.teacher.quizzes.$id'
@@ -139,6 +140,11 @@ const AppGamesMapQuizRoute = AppGamesMapQuizRouteImport.update({
   path: '/games/map-quiz',
   getParentRoute: () => AppRoute,
 } as any)
+const AppGamesGameIdRoute = AppGamesGameIdRouteImport.update({
+  id: '/games/$gameId',
+  path: '/games/$gameId',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAssignmentsIdRoute = AppAssignmentsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -176,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/teacher': typeof AppTeacherRouteWithChildren
   '/video-generator': typeof AppVideoGeneratorRoute
   '/assignments/$id': typeof AppAssignmentsIdRoute
+  '/games/$gameId': typeof AppGamesGameIdRoute
   '/games/map-quiz': typeof AppGamesMapQuizRoute
   '/games/term-match': typeof AppGamesTermMatchRoute
   '/teacher/assignments': typeof AppTeacherAssignmentsRoute
@@ -202,6 +209,7 @@ export interface FileRoutesByTo {
   '/teacher': typeof AppTeacherRouteWithChildren
   '/video-generator': typeof AppVideoGeneratorRoute
   '/assignments/$id': typeof AppAssignmentsIdRoute
+  '/games/$gameId': typeof AppGamesGameIdRoute
   '/games/map-quiz': typeof AppGamesMapQuizRoute
   '/games/term-match': typeof AppGamesTermMatchRoute
   '/teacher/assignments': typeof AppTeacherAssignmentsRoute
@@ -230,6 +238,7 @@ export interface FileRoutesById {
   '/_app/teacher': typeof AppTeacherRouteWithChildren
   '/_app/video-generator': typeof AppVideoGeneratorRoute
   '/_app/assignments/$id': typeof AppAssignmentsIdRoute
+  '/_app/games/$gameId': typeof AppGamesGameIdRoute
   '/_app/games/map-quiz': typeof AppGamesMapQuizRoute
   '/_app/games/term-match': typeof AppGamesTermMatchRoute
   '/_app/teacher/assignments': typeof AppTeacherAssignmentsRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/teacher'
     | '/video-generator'
     | '/assignments/$id'
+    | '/games/$gameId'
     | '/games/map-quiz'
     | '/games/term-match'
     | '/teacher/assignments'
@@ -284,6 +294,7 @@ export interface FileRouteTypes {
     | '/teacher'
     | '/video-generator'
     | '/assignments/$id'
+    | '/games/$gameId'
     | '/games/map-quiz'
     | '/games/term-match'
     | '/teacher/assignments'
@@ -311,6 +322,7 @@ export interface FileRouteTypes {
     | '/_app/teacher'
     | '/_app/video-generator'
     | '/_app/assignments/$id'
+    | '/_app/games/$gameId'
     | '/_app/games/map-quiz'
     | '/_app/games/term-match'
     | '/_app/teacher/assignments'
@@ -479,6 +491,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppGamesMapQuizRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/games/$gameId': {
+      id: '/_app/games/$gameId'
+      path: '/games/$gameId'
+      fullPath: '/games/$gameId'
+      preLoaderRoute: typeof AppGamesGameIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/assignments/$id': {
       id: '/_app/assignments/$id'
       path: '/$id'
@@ -575,6 +594,7 @@ interface AppRouteChildren {
   AppProfileRoute: typeof AppProfileRoute
   AppTeacherRoute: typeof AppTeacherRouteWithChildren
   AppVideoGeneratorRoute: typeof AppVideoGeneratorRoute
+  AppGamesGameIdRoute: typeof AppGamesGameIdRoute
   AppGamesMapQuizRoute: typeof AppGamesMapQuizRoute
   AppGamesTermMatchRoute: typeof AppGamesTermMatchRoute
   AppGamesIndexRoute: typeof AppGamesIndexRoute
@@ -591,6 +611,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProfileRoute: AppProfileRoute,
   AppTeacherRoute: AppTeacherRouteWithChildren,
   AppVideoGeneratorRoute: AppVideoGeneratorRoute,
+  AppGamesGameIdRoute: AppGamesGameIdRoute,
   AppGamesMapQuizRoute: AppGamesMapQuizRoute,
   AppGamesTermMatchRoute: AppGamesTermMatchRoute,
   AppGamesIndexRoute: AppGamesIndexRoute,
