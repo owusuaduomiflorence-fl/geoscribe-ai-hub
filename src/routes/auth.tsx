@@ -24,9 +24,10 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const { user, signIn, signUp, signInWithGoogle, loading } = useAuth();
+  const { user, signIn, signUp, signInWithGoogle, resetPassword, loading } = useAuth();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
+  const [showReset, setShowReset] = useState(false);
 
   useEffect(() => {
     if (!loading && user) {
@@ -70,6 +71,30 @@ function AuthPage() {
     else toast.success("Account created! Check your email to verify, then sign in.");
   };
 
+  const onResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    setBusy(true);
+    const { error } = await resetPassword(String(fd.get("reset-email")));
+    setBusy(false);
+    if (error) toast.error(error);
+    else {
+      toast.success("Password reset link sent. Check your email.");
+      setShowReset(false);
+    }
+  };
+
+  const onGoogleSignIn = async () => {
+    setBusy(true);
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Google sign-in failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <main className="min-h-screen grid place-items-center bg-hero px-4">
       <div className="w-full max-w-md">
@@ -101,7 +126,25 @@ function AuthPage() {
                 <Button type="submit" className="w-full" disabled={busy}>
                   {busy ? "Signing in..." : "Sign in"}
                 </Button>
+                <button
+                  type="button"
+                  className="w-full text-sm text-muted-foreground hover:text-foreground"
+                  onClick={() => setShowReset((value) => !value)}
+                >
+                  Forgot password?
+                </button>
               </form>
+              {showReset ? (
+                <form onSubmit={onResetPassword} className="mt-4 space-y-3 rounded-lg border border-border p-3">
+                  <div>
+                    <Label htmlFor="reset-email">Reset email</Label>
+                    <Input id="reset-email" name="reset-email" type="email" required autoComplete="email" />
+                  </div>
+                  <Button type="submit" variant="secondary" className="w-full" disabled={busy}>
+                    {busy ? "Sending..." : "Send reset link"}
+                  </Button>
+                </form>
+              ) : null}
             </TabsContent>
 
             <TabsContent value="signup" className="mt-5">
@@ -159,8 +202,8 @@ function AuthPage() {
             <div className="flex-1 h-px bg-border" /> OR <div className="flex-1 h-px bg-border" />
           </div>
 
-          <Button variant="outline" className="w-full" onClick={signInWithGoogle}>
-            Continue with Google
+          <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={busy}>
+            {busy ? "Opening Google..." : "Continue with Google"}
           </Button>
         </div>
       </div>
