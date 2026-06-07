@@ -71,14 +71,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [user]);
 
+  const clearLocalSupabaseStorage = () => {
+    if (typeof window === "undefined") return;
+    try {
+      const keys = Object.keys(window.localStorage);
+      for (const k of keys) {
+        if (k.startsWith("sb-") || k.includes("supabase")) {
+          window.localStorage.removeItem(k);
+        }
+      }
+    } catch {
+      // ignore storage access errors
+    }
+  };
+
   const signIn: AuthCtx["signIn"] = async (email, password) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    // Ensure no stale session interferes with the new sign-in
+    try {
+      await supabase.auth.signOut({ scope: "local" });
+    } catch {
+      // ignore
+    }
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
     return { error: error?.message ?? null };
   };
 
   const signUp: AuthCtx["signUp"] = async (email, password, displayName, role) => {
+    try {
+      await supabase.auth.signOut({ scope: "local" });
+    } catch {
+      // ignore
+    }
     const { error } = await supabase.auth.signUp({
-      email,
+      email: email.trim(),
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/dashboard`,
@@ -89,14 +117,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signInWithGoogle = async () => {
+    try {
+      await supabase.auth.signOut({ scope: "local" });
+    } catch {
+      // ignore
+    }
+    clearLocalSupabaseStorage();
     const { lovable } = await import("@/integrations/lovable");
     await lovable.auth.signInWithOAuth("google", {
       redirect_uri: `${window.location.origin}/dashboard`,
+      extraParams: { prompt: "select_account" },
     });
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    // Clear local state immediately so the UI updates even if the
+    // server-side revocation request fails (e.g. expired token).
+    setSession(null);
+    setUser(null);
+    setRoles([]);
+    try {
+      await supabase.auth.signOut({ scope: "local" });
+    } catch {
+      // ignore
+    }
+    clearLocalSupabaseStorage();
   };
 
   const hasRole = (r: AppRole) => roles.includes(r);
