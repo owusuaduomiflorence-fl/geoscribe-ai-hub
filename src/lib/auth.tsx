@@ -26,6 +26,7 @@ type AuthCtx = {
     role: AppRole
   ) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 };
 
@@ -184,6 +185,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (result.error) throw result.error;
   };
 
+  const resetPassword: AuthCtx["resetPassword"] = async (email) => {
+    await clearSupabaseClientSession();
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    return { error: error?.message ?? null };
+  };
+
   const signOut = async () => {
     // Clear local state immediately so the UI updates even if the
     // server-side revocation request fails (e.g. expired token).
@@ -209,6 +218,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signUp,
         signInWithGoogle,
+        resetPassword,
         signOut,
       }}
     >
