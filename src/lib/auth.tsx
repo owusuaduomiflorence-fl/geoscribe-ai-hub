@@ -26,10 +26,65 @@ type AuthCtx = {
     role: AppRole
   ) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 };
 
 const Ctx = createContext<AuthCtx | null>(null);
+
+const AUTH_STORAGE_MARKERS = ["sb-", "supabase", "gotrue", "oauth", "pkce"];
+
+export function clearBrowserAuthStorage() {
+  if (typeof window === "undefined") return;
+
+  const shouldClear = (key: string) => {
+    const normalized = key.toLowerCase();
+    return AUTH_STORAGE_MARKERS.some((marker) => normalized.includes(marker));
+  };
+
+  try {
+    for (const storage of [window.localStorage, window.sessionStorage]) {
+      for (const key of Object.keys(storage)) {
+        if (shouldClear(key)) storage.removeItem(key);
+      }
+    }
+  } catch {
+    // ignore storage access errors
+  }
+
+  try {
+    const hostParts = window.location.hostname.split(".");
+    const domains = new Set<string | undefined>([undefined, window.location.hostname]);
+    if (hostParts.length > 1) domains.add(`.${window.location.hostname}`);
+
+    for (const cookie of document.cookie.split(";")) {
+      const name = cookie.split("=")[0]?.trim();
+      if (!name || !shouldClear(name)) continue;
+      for (const domain of domains) {
+        document.cookie = `${name}=; Max-Age=0; path=/; SameSite=Lax${domain ? `; domain=${domain}` : ""}`;
+      }
+    }
+  } catch {
+    // ignore cookie cleanup errors
+  }
+}
+
+async function clearSupabaseClientSession() {
+  try {
+    await supabase.auth.signOut({ scope: "local" });
+  } catch {
+    // ignore missing/expired local sessions
+  } finally {
+    clearBrowserAuthStorage();
+  }
+}
+
+async function waitForSignOut() {
+  await Promise.race([
+    supabase.auth.signOut({ scope: "global" }).catch(() => null),
+    new Promise((resolve) => window.setTimeout(resolve, 2500)),
+  ]);
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -38,17 +93,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [roles, setRoles] = useState<AppRole[]>([]);
 
   useEffect(() => {
+    let mounted = true;
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      if (!mounted) return;
       setSession(s);
       setUser(s?.user ?? null);
       if (!s?.user) setRoles([]);
     });
+
     supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
       setSession(data.session);
       setUser(data.session?.user ?? null);
       setLoading(false);
+    }).catch(() => {
+      if (!mounted) return;
+      clearBrowserAuthStorage();
+      setSession(null);
+      setUser(null);
+      setRoles([]);
+      setLoading(false);
     });
-    return () => sub.subscription.unsubscribe();
+
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   // Load roles whenever user changes
@@ -71,40 +141,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [user]);
 
-  const clearLocalSupabaseStorage = () => {
-    if (typeof window === "undefined") return;
-    try {
-      const keys = Object.keys(window.localStorage);
-      for (const k of keys) {
-        if (k.startsWith("sb-") || k.includes("supabase")) {
-          window.localStorage.removeItem(k);
-        }
-      }
-    } catch {
-      // ignore storage access errors
-    }
-  };
-
   const signIn: AuthCtx["signIn"] = async (email, password) => {
-    // Ensure no stale session interferes with the new sign-in
-    try {
-      await supabase.auth.signOut({ scope: "local" });
-    } catch {
-      // ignore
-    }
-    const { error } = await supabase.auth.signInWithPassword({
+    await clearSupabaseClientSession();
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
     });
-    return { error: error?.message ?? null };
+    if (error) {
+      await clearSupabaseClientSession();
+      const message = error.message.toLowerCase().includes("invalid login credentials")
+        ? "Invalid login credentials. If this account was created with Google, use Continue with Google or reset the password first."
+        : error.message;
+      return { error: message };
+    }
+
+    const activeSession = data.session ?? (await supabase.auth.getSession()).data.session;
+    if (!activeSession) return { error: "Sign-in did not return a valid session. Please try again." };
+    setSession(activeSession);
+    setUser(activeSession.user);
+    return { error: null };
   };
 
   const signUp: AuthCtx["signUp"] = async (email, password, displayName, role) => {
-    try {
-      await supabase.auth.signOut({ scope: "local" });
-    } catch {
-      // ignore
-    }
+    await clearSupabaseClientSession();
     const { error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
@@ -117,17 +176,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signInWithGoogle = async () => {
-    try {
-      await supabase.auth.signOut({ scope: "local" });
-    } catch {
-      // ignore
-    }
-    clearLocalSupabaseStorage();
+    await clearSupabaseClientSession();
     const { lovable } = await import("@/integrations/lovable");
-    await lovable.auth.signInWithOAuth("google", {
+    const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: `${window.location.origin}/dashboard`,
       extraParams: { prompt: "select_account" },
     });
+    if (result.error) throw result.error;
+  };
+
+  const resetPassword: AuthCtx["resetPassword"] = async (email) => {
+    await clearSupabaseClientSession();
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    return { error: error?.message ?? null };
   };
 
   const signOut = async () => {
@@ -136,12 +199,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
     setUser(null);
     setRoles([]);
-    try {
-      await supabase.auth.signOut({ scope: "local" });
-    } catch {
-      // ignore
-    }
-    clearLocalSupabaseStorage();
+    await waitForSignOut();
+    await clearSupabaseClientSession();
   };
 
   const hasRole = (r: AppRole) => roles.includes(r);
@@ -159,6 +218,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signUp,
         signInWithGoogle,
+        resetPassword,
         signOut,
       }}
     >
