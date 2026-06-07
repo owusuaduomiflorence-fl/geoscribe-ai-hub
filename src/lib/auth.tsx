@@ -32,7 +32,7 @@ type AuthCtx = {
 
 const Ctx = createContext<AuthCtx | null>(null);
 
-const AUTH_STORAGE_MARKERS = ["sb-", "supabase", "gotrue", "lovable", "oauth", "pkce"];
+const AUTH_STORAGE_MARKERS = ["sb-", "supabase", "gotrue", "oauth", "pkce"];
 
 export function clearBrowserAuthStorage() {
   if (typeof window === "undefined") return;
