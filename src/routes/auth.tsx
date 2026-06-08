@@ -24,10 +24,11 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const { user, signIn, signUp, signInWithGoogle, resetPassword, loading } = useAuth();
+  const { user, signIn, signUp, signInWithGoogle, resetPassword, resendVerification, loading } = useAuth();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
   const [showReset, setShowReset] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
 
   useEffect(() => {
     if (!loading && user) {
@@ -47,10 +48,14 @@ function AuthPage() {
   const onSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
+    const email = String(fd.get("email")).trim().toLowerCase();
     setBusy(true);
-    const { error } = await signIn(String(fd.get("email")), String(fd.get("password")));
+    const { error, needsVerification } = await signIn(email, String(fd.get("password")));
     setBusy(false);
-    if (error) toast.error(error);
+    if (error) {
+      setVerificationEmail(needsVerification ? email : "");
+      toast.error(error);
+    }
     else navigate({ to: "/dashboard" });
   };
 
@@ -82,6 +87,15 @@ function AuthPage() {
       toast.success("Password reset link sent. Check your email.");
       setShowReset(false);
     }
+  };
+
+  const onResendVerification = async () => {
+    if (!verificationEmail) return;
+    setBusy(true);
+    const { error } = await resendVerification(verificationEmail);
+    setBusy(false);
+    if (error) toast.error(error);
+    else toast.success("Verification email sent. Open it, then sign in again.");
   };
 
   const onGoogleSignIn = async () => {
@@ -144,6 +158,14 @@ function AuthPage() {
                     {busy ? "Sending..." : "Send reset link"}
                   </Button>
                 </form>
+              ) : null}
+              {verificationEmail ? (
+                <div className="mt-4 space-y-3 rounded-lg border border-border p-3 text-sm text-muted-foreground">
+                  <p>Email/password sign-in requires a verified email address.</p>
+                  <Button type="button" variant="secondary" className="w-full" onClick={onResendVerification} disabled={busy}>
+                    {busy ? "Sending..." : "Resend verification email"}
+                  </Button>
+                </div>
               ) : null}
             </TabsContent>
 
