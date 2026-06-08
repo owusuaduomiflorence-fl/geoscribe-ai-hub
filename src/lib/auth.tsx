@@ -18,7 +18,7 @@ type AuthCtx = {
   isTeacher: boolean;
   isStudent: boolean;
   hasRole: (role: AppRole) => boolean;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: string | null; needsVerification?: boolean }>;
   signUp: (
     email: string,
     password: string,
@@ -27,6 +27,7 @@ type AuthCtx = {
   ) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
+  resendVerification: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 };
 
@@ -142,17 +143,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const signIn: AuthCtx["signIn"] = async (email, password) => {
+    const normalizedEmail = email.trim().toLowerCase();
     await clearSupabaseClientSession();
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
+      email: normalizedEmail,
       password,
     });
     if (error) {
       await clearSupabaseClientSession();
       const message = error.message.toLowerCase().includes("invalid login credentials")
-        ? "Invalid login credentials. If this account was created with Google, use Continue with Google or reset the password first."
+        ? "Invalid login credentials. Check your password, or verify your email if you recently created this account."
         : error.message;
-      return { error: message };
+      return { error: message, needsVerification: true };
     }
 
     const activeSession = data.session ?? (await supabase.auth.getSession()).data.session;
@@ -165,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp: AuthCtx["signUp"] = async (email, password, displayName, role) => {
     await clearSupabaseClientSession();
     const { error } = await supabase.auth.signUp({
-      email: email.trim(),
+      email: email.trim().toLowerCase(),
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/dashboard`,
@@ -187,8 +189,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const resetPassword: AuthCtx["resetPassword"] = async (email) => {
     await clearSupabaseClientSession();
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
       redirectTo: `${window.location.origin}/reset-password`,
+    });
+    return { error: error?.message ?? null };
+  };
+
+  const resendVerification: AuthCtx["resendVerification"] = async (email) => {
+    await clearSupabaseClientSession();
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: email.trim().toLowerCase(),
+      options: { emailRedirectTo: `${window.location.origin}/dashboard` },
     });
     return { error: error?.message ?? null };
   };
@@ -219,6 +231,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signUp,
         signInWithGoogle,
         resetPassword,
+        resendVerification,
         signOut,
       }}
     >
