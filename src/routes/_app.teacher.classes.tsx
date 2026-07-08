@@ -26,12 +26,28 @@ function TeacherClasses() {
     },
   });
 
+  const [creating, setCreating] = useState(false);
   const create = async () => {
-    if (!name.trim() || !user) return;
-    const { error } = await supabase.from("classes").insert({ name: name.trim(), description: desc.trim() || null, teacher_id: user.id });
-    if (error) return toast.error(error.message);
-    setName(""); setDesc("");
-    qc.invalidateQueries({ queryKey: ["teacher-classes"] });
+    if (!name.trim()) return toast.error("Enter a class name");
+    if (!user) return toast.error("You must be signed in");
+    setCreating(true);
+    try {
+      // Make sure a profile + role row exists (RLS-safe)
+      await supabase.rpc("ensure_user_profile", { _display_name: undefined, _role: "teacher" });
+      const { data, error } = await supabase
+        .from("classes")
+        .insert({ name: name.trim(), description: desc.trim() || null, teacher_id: user.id })
+        .select()
+        .single();
+      if (error) throw error;
+      setName(""); setDesc("");
+      await qc.invalidateQueries({ queryKey: ["teacher-classes"] });
+      toast.success(`Class created — join code ${data.join_code}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to create class");
+    } finally {
+      setCreating(false);
+    }
   };
 
   return (
@@ -41,7 +57,7 @@ function TeacherClasses() {
       <div className="rounded-xl border border-border bg-card p-4 mb-8 space-y-3">
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Class name (e.g. JHS 2 Geography)" />
         <Textarea value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Optional description" rows={2} />
-        <Button onClick={create} disabled={!name.trim()}><Plus className="h-4 w-4 mr-1" /> Create class</Button>
+        <Button onClick={create} disabled={creating || !name.trim()}><Plus className="h-4 w-4 mr-1" /> {creating ? "Creating..." : "Create class"}</Button>
       </div>
 
       <div className="space-y-3">
