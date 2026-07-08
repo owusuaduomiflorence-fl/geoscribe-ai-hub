@@ -26,12 +26,28 @@ function TeacherClasses() {
     },
   });
 
+  const [creating, setCreating] = useState(false);
   const create = async () => {
-    if (!name.trim() || !user) return;
-    const { error } = await supabase.from("classes").insert({ name: name.trim(), description: desc.trim() || null, teacher_id: user.id });
-    if (error) return toast.error(error.message);
-    setName(""); setDesc("");
-    qc.invalidateQueries({ queryKey: ["teacher-classes"] });
+    if (!name.trim()) return toast.error("Enter a class name");
+    if (!user) return toast.error("You must be signed in");
+    setCreating(true);
+    try {
+      // Make sure a profile + role row exists (RLS-safe)
+      await supabase.rpc("ensure_user_profile", { _display_name: null, _role: "teacher" });
+      const { data, error } = await supabase
+        .from("classes")
+        .insert({ name: name.trim(), description: desc.trim() || null, teacher_id: user.id })
+        .select()
+        .single();
+      if (error) throw error;
+      setName(""); setDesc("");
+      await qc.invalidateQueries({ queryKey: ["teacher-classes"] });
+      toast.success(`Class created — join code ${data.join_code}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to create class");
+    } finally {
+      setCreating(false);
+    }
   };
 
   return (
