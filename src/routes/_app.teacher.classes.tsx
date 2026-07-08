@@ -33,7 +33,7 @@ function TeacherClasses() {
     setCreating(true);
     try {
       // Make sure a profile + role row exists (RLS-safe)
-      await supabase.rpc("ensure_user_profile", { _display_name: null, _role: "teacher" });
+      await supabase.rpc("ensure_user_profile", { _display_name: undefined, _role: "teacher" });
       const { data, error } = await supabase
         .from("classes")
         .insert({ name: name.trim(), description: desc.trim() || null, teacher_id: user.id })
