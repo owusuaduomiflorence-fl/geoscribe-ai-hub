@@ -57,7 +57,7 @@ function TeacherClasses() {
       <div className="rounded-xl border border-border bg-card p-4 mb-8 space-y-3">
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Class name (e.g. JHS 2 Geography)" />
         <Textarea value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Optional description" rows={2} />
-        <Button onClick={create} disabled={!name.trim()}><Plus className="h-4 w-4 mr-1" /> Create class</Button>
+        <Button onClick={create} disabled={creating || !name.trim()}><Plus className="h-4 w-4 mr-1" /> {creating ? "Creating..." : "Create class"}</Button>
       </div>
 
       <div className="space-y-3">
