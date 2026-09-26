@@ -44,60 +44,60 @@
   --color-land-orange: oklch(0.66 0.16 45);
   --color-land-pink: oklch(0.9 0.05 350);
 
-  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
 
   --gradient-hero: radial-gradient(
       ellipse 80% 60% at 50% 0%,
-      oklch(0.55 0.18 165 / 0.25),
+      oklch(0.5 0.09 155 / 0.12),
       transparent 60%
     ),
     radial-gradient(
       ellipse 60% 50% at 90% 30%,
-      oklch(0.55 0.2 220 / 0.18),
+      oklch(0.66 0.16 45 / 0.12),
       transparent 60%
     );
-  --gradient-primary: linear-gradient(135deg, oklch(0.78 0.15 165), oklch(0.7 0.16 195));
+  --gradient-primary: linear-gradient(135deg, oklch(0.5 0.09 155), oklch(0.58 0.11 120));
   --gradient-card: linear-gradient(
     180deg,
-    oklch(0.22 0.025 240 / 0.6),
-    oklch(0.18 0.02 240 / 0.4)
+    oklch(1 0 0 / 0.8),
+    oklch(0.97 0.015 95 / 0.6)
   );
-  --shadow-glow: 0 0 40px oklch(0.78 0.15 165 / 0.25);
-  --shadow-card: 0 8px 30px oklch(0 0 0 / 0.35);
+  --shadow-glow: 0 0 40px oklch(0.5 0.09 155 / 0.2);
+  --shadow-card: 0 8px 30px oklch(0.24 0.03 160 / 0.08);
 }
 
 :root {
   --radius: 0.75rem;
 
-  /* Dark theme is default — matches the Geoguide AI brand */
-  --background: oklch(0.16 0.02 240);
-  --foreground: oklch(0.97 0.005 240);
-  --card: oklch(0.21 0.022 240);
-  --card-foreground: oklch(0.97 0.005 240);
-  --popover: oklch(0.21 0.022 240);
-  --popover-foreground: oklch(0.97 0.005 240);
-  --primary: oklch(0.78 0.15 165);
-  --primary-foreground: oklch(0.18 0.02 240);
-  --secondary: oklch(0.26 0.025 240);
-  --secondary-foreground: oklch(0.97 0.005 240);
-  --muted: oklch(0.24 0.022 240);
-  --muted-foreground: oklch(0.7 0.015 240);
-  --accent: oklch(0.7 0.16 195);
-  --accent-foreground: oklch(0.16 0.02 240);
-  --destructive: oklch(0.65 0.22 25);
+  /* Warm light theme — matches the Brightpath-inspired landing */
+  --background: oklch(0.96 0.02 95);
+  --foreground: oklch(0.24 0.03 160);
+  --card: oklch(0.99 0.01 95);
+  --card-foreground: oklch(0.24 0.03 160);
+  --popover: oklch(0.99 0.01 95);
+  --popover-foreground: oklch(0.24 0.03 160);
+  --primary: oklch(0.5 0.09 155);
+  --primary-foreground: oklch(0.97 0.02 95);
+  --secondary: oklch(0.93 0.02 95);
+  --secondary-foreground: oklch(0.24 0.03 160);
+  --muted: oklch(0.93 0.02 95);
+  --muted-foreground: oklch(0.45 0.03 160);
+  --accent: oklch(0.66 0.16 45);
+  --accent-foreground: oklch(0.97 0.02 95);
+  --destructive: oklch(0.6 0.2 25);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.3 0.022 240 / 0.6);
-  --input: oklch(0.3 0.022 240 / 0.6);
-  --ring: oklch(0.78 0.15 165);
-  --sidebar: oklch(0.18 0.02 240);
-  --sidebar-foreground: oklch(0.97 0.005 240);
-  --sidebar-primary: oklch(0.78 0.15 165);
-  --sidebar-primary-foreground: oklch(0.18 0.02 240);
-  --sidebar-accent: oklch(0.26 0.025 240);
-  --sidebar-accent-foreground: oklch(0.97 0.005 240);
-  --sidebar-border: oklch(0.3 0.022 240 / 0.5);
-  --sidebar-ring: oklch(0.78 0.15 165);
+  --border: oklch(0.24 0.03 160 / 0.12);
+  --input: oklch(0.24 0.03 160 / 0.15);
+  --ring: oklch(0.5 0.09 155);
+  --sidebar: oklch(0.94 0.02 95);
+  --sidebar-foreground: oklch(0.24 0.03 160);
+  --sidebar-primary: oklch(0.5 0.09 155);
+  --sidebar-primary-foreground: oklch(0.97 0.02 95);
+  --sidebar-accent: oklch(0.9 0.03 120);
+  --sidebar-accent-foreground: oklch(0.24 0.03 160);
+  --sidebar-border: oklch(0.24 0.03 160 / 0.1);
+  --sidebar-ring: oklch(0.5 0.09 155);
 }
 
 @layer base {
