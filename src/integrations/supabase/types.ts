@@ -269,6 +269,60 @@ export type Database = {
         }
         Relationships: []
       }
+      geosnap_discoveries: {
+        Row: {
+          approx_location: string | null
+          category: string | null
+          confidence: number | null
+          created_at: string
+          feature: string
+          id: string
+          image_path: string
+          level: string
+          quiz_score: number | null
+          quiz_total: number | null
+          result: Json
+          topic: string | null
+          user_id: string
+          xp_earned: number
+          xp_events: Json
+        }
+        Insert: {
+          approx_location?: string | null
+          category?: string | null
+          confidence?: number | null
+          created_at?: string
+          feature: string
+          id?: string
+          image_path: string
+          level?: string
+          quiz_score?: number | null
+          quiz_total?: number | null
+          result?: Json
+          topic?: string | null
+          user_id: string
+          xp_earned?: number
+          xp_events?: Json
+        }
+        Update: {
+          approx_location?: string | null
+          category?: string | null
+          confidence?: number | null
+          created_at?: string
+          feature?: string
+          id?: string
+          image_path?: string
+          level?: string
+          quiz_score?: number | null
+          quiz_total?: number | null
+          result?: Json
+          topic?: string | null
+          user_id?: string
+          xp_earned?: number
+          xp_events?: Json
+        }
+        Relationships: []
+      }
       journal_entries: {
         Row: {
           content: string

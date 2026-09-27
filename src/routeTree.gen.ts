@@ -19,6 +19,7 @@ import { Route as AppTeacherRouteImport } from './routes/_app.teacher'
 import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppJournalRouteImport } from './routes/_app.journal'
 import { Route as AppImageGeneratorRouteImport } from './routes/_app.image-generator'
+import { Route as AppGeosnapRouteImport } from './routes/_app.geosnap'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppClassesRouteImport } from './routes/_app.classes'
 import { Route as AppChatbotRouteImport } from './routes/_app.chatbot'
@@ -84,6 +85,11 @@ const AppJournalRoute = AppJournalRouteImport.update({
 const AppImageGeneratorRoute = AppImageGeneratorRouteImport.update({
   id: '/image-generator',
   path: '/image-generator',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGeosnapRoute = AppGeosnapRouteImport.update({
+  id: '/geosnap',
+  path: '/geosnap',
   getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
@@ -183,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/chatbot': typeof AppChatbotRoute
   '/classes': typeof AppClassesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/geosnap': typeof AppGeosnapRoute
   '/image-generator': typeof AppImageGeneratorRoute
   '/journal': typeof AppJournalRoute
   '/profile': typeof AppProfileRoute
@@ -211,6 +218,7 @@ export interface FileRoutesByTo {
   '/chatbot': typeof AppChatbotRoute
   '/classes': typeof AppClassesRoute
   '/dashboard': typeof AppDashboardRoute
+  '/geosnap': typeof AppGeosnapRoute
   '/image-generator': typeof AppImageGeneratorRoute
   '/journal': typeof AppJournalRoute
   '/profile': typeof AppProfileRoute
@@ -241,6 +249,7 @@ export interface FileRoutesById {
   '/_app/chatbot': typeof AppChatbotRoute
   '/_app/classes': typeof AppClassesRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/geosnap': typeof AppGeosnapRoute
   '/_app/image-generator': typeof AppImageGeneratorRoute
   '/_app/journal': typeof AppJournalRoute
   '/_app/profile': typeof AppProfileRoute
@@ -271,6 +280,7 @@ export interface FileRouteTypes {
     | '/chatbot'
     | '/classes'
     | '/dashboard'
+    | '/geosnap'
     | '/image-generator'
     | '/journal'
     | '/profile'
@@ -299,6 +309,7 @@ export interface FileRouteTypes {
     | '/chatbot'
     | '/classes'
     | '/dashboard'
+    | '/geosnap'
     | '/image-generator'
     | '/journal'
     | '/profile'
@@ -328,6 +339,7 @@ export interface FileRouteTypes {
     | '/_app/chatbot'
     | '/_app/classes'
     | '/_app/dashboard'
+    | '/_app/geosnap'
     | '/_app/image-generator'
     | '/_app/journal'
     | '/_app/profile'
@@ -425,6 +437,13 @@ declare module '@tanstack/react-router' {
       path: '/image-generator'
       fullPath: '/image-generator'
       preLoaderRoute: typeof AppImageGeneratorRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/geosnap': {
+      id: '/_app/geosnap'
+      path: '/geosnap'
+      fullPath: '/geosnap'
+      preLoaderRoute: typeof AppGeosnapRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/dashboard': {
@@ -609,6 +628,7 @@ interface AppRouteChildren {
   AppChatbotRoute: typeof AppChatbotRoute
   AppClassesRoute: typeof AppClassesRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppGeosnapRoute: typeof AppGeosnapRoute
   AppImageGeneratorRoute: typeof AppImageGeneratorRoute
   AppJournalRoute: typeof AppJournalRoute
   AppProfileRoute: typeof AppProfileRoute
@@ -626,6 +646,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppChatbotRoute: AppChatbotRoute,
   AppClassesRoute: AppClassesRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppGeosnapRoute: AppGeosnapRoute,
   AppImageGeneratorRoute: AppImageGeneratorRoute,
   AppJournalRoute: AppJournalRoute,
   AppProfileRoute: AppProfileRoute,
