@@ -17,6 +17,7 @@ import {
   FileText,
   School,
   UserCircle,
+  Camera,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
@@ -26,6 +27,7 @@ import { Button } from "@/components/ui/button";
 
 const studentLinks = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/geosnap", label: "GeoSnap", icon: Camera },
   { to: "/chatbot", label: "AI Chatbot", icon: MessageSquare },
   { to: "/image-generator", label: "Images", icon: ImageIcon },
   { to: "/video-generator", label: "Videos", icon: Video },
