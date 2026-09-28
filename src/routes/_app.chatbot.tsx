@@ -11,6 +11,8 @@ import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/chatbot")({
+  validateSearch: (s: Record<string, unknown>): { q?: string } =>
+    typeof s.q === "string" ? { q: s.q.slice(0, 500) } : {},
   component: Chatbot,
   head: () => ({
     meta: [
@@ -31,7 +33,8 @@ function Chatbot() {
   const qc = useQueryClient();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
-  const [input, setInput] = useState("");
+  const { q } = Route.useSearch();
+  const [input, setInput] = useState(q ?? "");
   const [streaming, setStreaming] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
