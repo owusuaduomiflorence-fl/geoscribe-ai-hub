@@ -4,7 +4,82 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useProfile } from "@/hooks/use-profile";
 import { displayNameFor } from "@/lib/display-name";
-import { MessageSquare, Image as ImageIcon, Video, BookOpen, Sparkles, Camera } from "lucide-react";
+import { MessageSquare, Image as ImageIcon, Video, BookOpen, Sparkles, Camera, Lock, CheckCircle2, Target } from "lucide-react";
+import { computeProgress, type SnapRow } from "@/lib/geomissions";
+
+function GeoMissionsPanel({ geo }: { geo: ReturnType<typeof computeProgress> }) {
+  const next = geo.nextBadge;
+  const prevXp = [...geo.badges].reverse().find((b) => b.earned)?.xp ?? 0;
+  const pct = next ? Math.round(((geo.xp - prevXp) / (next.xp - prevXp)) * 100) : 100;
+  return (
+    <section className="mt-10">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <h2 className="text-xl font-semibold flex items-center gap-2">
+          <Target className="h-5 w-5 text-primary" /> GeoMissions
+        </h2>
+        <Link to="/geosnap" className="text-sm font-medium text-primary hover:underline">
+          Snap to earn XP →
+        </Link>
+      </div>
+
+      <div className="mt-4 rounded-xl border border-border bg-card p-5">
+        <div className="flex justify-between text-sm">
+          <span className="font-semibold">{geo.xp} XP</span>
+          <span className="text-muted-foreground">
+            {next ? `${next.xp - geo.xp} XP to ${next.emoji} ${next.name}` : "All badges earned!"}
+          </span>
+        </div>
+        <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
+          <div className="h-full bg-primary transition-all" style={{ width: `${Math.max(0, Math.min(100, pct))}%` }} />
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {geo.badges.map((b) => (
+            <span
+              key={b.id}
+              title={b.earned ? `Earned at ${b.xp} XP` : `Unlocks at ${b.xp} XP`}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${
+                b.earned ? "bg-accent text-accent-foreground border-accent" : "bg-muted text-muted-foreground border-border opacity-60"
+              }`}
+            >
+              {b.emoji} {b.name}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {geo.missions.map((m) => (
+          <div
+            key={m.id}
+            className={`rounded-xl border p-4 ${m.completed ? "border-primary/50 bg-primary/5" : "border-border bg-card"} ${!m.unlocked ? "opacity-60" : ""}`}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div className="font-semibold text-sm">{m.title}</div>
+              {m.completed ? (
+                <CheckCircle2 className="h-4 w-4 text-primary" />
+              ) : !m.unlocked ? (
+                <Lock className="h-4 w-4 text-muted-foreground" />
+              ) : null}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">{m.description}</p>
+            {m.unlocked ? (
+              <>
+                <div className="mt-3 h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full bg-primary" style={{ width: `${(m.progress / m.target) * 100}%` }} />
+                </div>
+                <div className="mt-1 text-[11px] text-muted-foreground">
+                  {m.progress}/{m.target}
+                </div>
+              </>
+            ) : (
+              <div className="mt-3 text-[11px] text-muted-foreground">Unlocks at {m.unlockXp} XP</div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 export const Route = createFileRoute("/_app/dashboard")({
   component: Dashboard,
@@ -33,16 +108,20 @@ function Dashboard() {
         supabase.from("generated_images").select("id", { count: "exact", head: true }),
         supabase.from("generated_videos").select("id", { count: "exact", head: true }),
         supabase.from("journal_entries").select("id", { count: "exact", head: true }),
-        (supabase as any).from("geosnap_discoveries").select("xp_earned").eq("user_id", user?.id ?? ""),
+        (supabase as any)
+          .from("geosnap_discoveries")
+          .select("xp_earned, category, level, quiz_score, quiz_total")
+          .eq("user_id", user?.id ?? ""),
       ]);
-      const snapRows = (snaps.data ?? []) as { xp_earned: number | null }[];
+      const geo = computeProgress((snaps.data ?? []) as SnapRow[]);
       return {
         conversations: conv.count ?? 0,
         images: img.count ?? 0,
         videos: vid.count ?? 0,
         entries: jrn.count ?? 0,
-        discoveries: snapRows.length,
-        xp: snapRows.reduce((s, r) => s + (r.xp_earned ?? 0), 0),
+        discoveries: geo.discoveries,
+        xp: geo.xp,
+        geo,
       };
     },
   });
@@ -103,6 +182,8 @@ function Dashboard() {
           </div>
         ))}
       </div>
+
+      {stats?.geo && <GeoMissionsPanel geo={stats.geo} />}
 
       <div className="mt-8 grid md:grid-cols-3 gap-4">
         <Link to="/chatbot" className="rounded-xl border border-border bg-card hover:border-primary/40 transition p-5">
