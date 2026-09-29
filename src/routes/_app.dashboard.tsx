@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useProfile } from "@/hooks/use-profile";
 import { displayNameFor } from "@/lib/display-name";
-import { MessageSquare, Image as ImageIcon, Video, BookOpen, Sparkles } from "lucide-react";
+import { MessageSquare, Image as ImageIcon, Video, BookOpen, Sparkles, Camera } from "lucide-react";
 
 export const Route = createFileRoute("/_app/dashboard")({
   component: Dashboard,
@@ -28,17 +28,21 @@ function Dashboard() {
   const { data: stats } = useQuery({
     queryKey: ["dashboard-stats", user?.id],
     queryFn: async () => {
-      const [conv, img, vid, jrn] = await Promise.all([
+      const [conv, img, vid, jrn, snaps] = await Promise.all([
         supabase.from("conversations").select("id", { count: "exact", head: true }),
         supabase.from("generated_images").select("id", { count: "exact", head: true }),
         supabase.from("generated_videos").select("id", { count: "exact", head: true }),
         supabase.from("journal_entries").select("id", { count: "exact", head: true }),
+        (supabase as any).from("geosnap_discoveries").select("xp_earned").eq("user_id", user?.id ?? ""),
       ]);
+      const snapRows = (snaps.data ?? []) as { xp_earned: number | null }[];
       return {
         conversations: conv.count ?? 0,
         images: img.count ?? 0,
         videos: vid.count ?? 0,
         entries: jrn.count ?? 0,
+        discoveries: snapRows.length,
+        xp: snapRows.reduce((s, r) => s + (r.xp_earned ?? 0), 0),
       };
     },
   });
@@ -69,6 +73,8 @@ function Dashboard() {
   });
 
   const cards = [
+    { label: "Learning XP", value: stats?.xp ?? 0, Icon: Sparkles },
+    { label: "GeoSnap Discoveries", value: stats?.discoveries ?? 0, Icon: Camera },
     { label: "Conversations", value: stats?.conversations ?? 0, Icon: MessageSquare },
     { label: "Images Generated", value: stats?.images ?? 0, Icon: ImageIcon },
     { label: "Video Storyboards", value: stats?.videos ?? 0, Icon: Video },
@@ -88,7 +94,7 @@ function Dashboard() {
         Pick up where you left off, or start something new.
       </p>
 
-      <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-4">
         {cards.map(({ label, value, Icon }) => (
           <div key={label} className="rounded-xl border border-border bg-gradient-card p-5">
             <Icon className="h-5 w-5 text-primary" />
