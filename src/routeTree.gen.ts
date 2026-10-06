@@ -9,48 +9,39 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppRouteImport } from './routes/_app'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as AppAboutRouteImport } from './routes/_app.about'
-import { Route as AppAssignmentsRouteImport } from './routes/_app.assignments'
-import { Route as AppChatbotRouteImport } from './routes/_app.chatbot'
-import { Route as AppClassesRouteImport } from './routes/_app.classes'
-import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
-import { Route as AppGeosnapRouteImport } from './routes/_app.geosnap'
-import { Route as AppImageGeneratorRouteImport } from './routes/_app.image-generator'
-import { Route as AppJournalRouteImport } from './routes/_app.journal'
-import { Route as AppLearnRouteImport } from './routes/_app.learn'
-import { Route as AppProfileRouteImport } from './routes/_app.profile'
-import { Route as AppTeacherRouteImport } from './routes/_app.teacher'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppVideoGeneratorRouteImport } from './routes/_app.video-generator'
-import { Route as AppAssignmentsIdRouteImport } from './routes/_app.assignments.$id'
+import { Route as AppTeacherRouteImport } from './routes/_app.teacher'
+import { Route as AppProfileRouteImport } from './routes/_app.profile'
+import { Route as AppLearnRouteImport } from './routes/_app.learn'
+import { Route as AppJournalRouteImport } from './routes/_app.journal'
+import { Route as AppImageGeneratorRouteImport } from './routes/_app.image-generator'
+import { Route as AppGeosnapRouteImport } from './routes/_app.geosnap'
+import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppClassesRouteImport } from './routes/_app.classes'
+import { Route as AppChatbotRouteImport } from './routes/_app.chatbot'
+import { Route as AppAssignmentsRouteImport } from './routes/_app.assignments'
+import { Route as AppAboutRouteImport } from './routes/_app.about'
 import { Route as AppGamesIndexRouteImport } from './routes/_app.games.index'
-import { Route as AppGamesGameIdRouteImport } from './routes/_app.games.$gameId'
-import { Route as AppGamesMapQuizRouteImport } from './routes/_app.games.map-quiz'
-import { Route as AppGamesTermMatchRouteImport } from './routes/_app.games.term-match'
-import { Route as AppTeacherAssignmentsRouteImport } from './routes/_app.teacher.assignments'
-import { Route as AppTeacherClassesRouteImport } from './routes/_app.teacher.classes'
-import { Route as AppTeacherQuizzesRouteImport } from './routes/_app.teacher.quizzes'
 import { Route as AppTeacherWorksheetsRouteImport } from './routes/_app.teacher.worksheets'
-import { Route as AppTeacherGradebookAssignmentIdRouteImport } from './routes/_app.teacher.gradebook.$assignmentId'
-import { Route as AppTeacherQuizzesIdRouteImport } from './routes/_app.teacher.quizzes.$id'
+import { Route as AppTeacherQuizzesRouteImport } from './routes/_app.teacher.quizzes'
+import { Route as AppTeacherClassesRouteImport } from './routes/_app.teacher.classes'
+import { Route as AppTeacherAssignmentsRouteImport } from './routes/_app.teacher.assignments'
+import { Route as AppGamesTermMatchRouteImport } from './routes/_app.games.term-match'
+import { Route as AppGamesMapQuizRouteImport } from './routes/_app.games.map-quiz'
+import { Route as AppGamesGameIdRouteImport } from './routes/_app.games.$gameId'
+import { Route as AppAssignmentsIdRouteImport } from './routes/_app.assignments.$id'
 import { Route as AppTeacherWorksheetsIdRouteImport } from './routes/_app.teacher.worksheets.$id'
+import { Route as AppTeacherQuizzesIdRouteImport } from './routes/_app.teacher.quizzes.$id'
+import { Route as AppTeacherGradebookAssignmentIdRouteImport } from './routes/_app.teacher.gradebook.$assignmentId'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppRoute = AppRouteImport.update({
-  id: '/_app',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -58,59 +49,23 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppAboutRoute = AppAboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => AppRoute,
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppAssignmentsRoute = AppAssignmentsRouteImport.update({
-  id: '/assignments',
-  path: '/assignments',
-  getParentRoute: () => AppRoute,
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppChatbotRoute = AppChatbotRouteImport.update({
-  id: '/chatbot',
-  path: '/chatbot',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppClassesRoute = AppClassesRouteImport.update({
-  id: '/classes',
-  path: '/classes',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppDashboardRoute = AppDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppGeosnapRoute = AppGeosnapRouteImport.update({
-  id: '/geosnap',
-  path: '/geosnap',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppImageGeneratorRoute = AppImageGeneratorRouteImport.update({
-  id: '/image-generator',
-  path: '/image-generator',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppJournalRoute = AppJournalRouteImport.update({
-  id: '/journal',
-  path: '/journal',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppLearnRoute = AppLearnRouteImport.update({
-  id: '/learn',
-  path: '/learn',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppProfileRoute = AppProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
+const AppVideoGeneratorRoute = AppVideoGeneratorRouteImport.update({
+  id: '/video-generator',
+  path: '/video-generator',
   getParentRoute: () => AppRoute,
 } as any)
 const AppTeacherRoute = AppTeacherRouteImport.update({
@@ -118,44 +73,64 @@ const AppTeacherRoute = AppTeacherRouteImport.update({
   path: '/teacher',
   getParentRoute: () => AppRoute,
 } as any)
-const AppVideoGeneratorRoute = AppVideoGeneratorRouteImport.update({
-  id: '/video-generator',
-  path: '/video-generator',
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAssignmentsIdRoute = AppAssignmentsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AppAssignmentsRoute,
+const AppLearnRoute = AppLearnRouteImport.update({
+  id: '/learn',
+  path: '/learn',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppJournalRoute = AppJournalRouteImport.update({
+  id: '/journal',
+  path: '/journal',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppImageGeneratorRoute = AppImageGeneratorRouteImport.update({
+  id: '/image-generator',
+  path: '/image-generator',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGeosnapRoute = AppGeosnapRouteImport.update({
+  id: '/geosnap',
+  path: '/geosnap',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppClassesRoute = AppClassesRouteImport.update({
+  id: '/classes',
+  path: '/classes',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppChatbotRoute = AppChatbotRouteImport.update({
+  id: '/chatbot',
+  path: '/chatbot',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAssignmentsRoute = AppAssignmentsRouteImport.update({
+  id: '/assignments',
+  path: '/assignments',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAboutRoute = AppAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppGamesIndexRoute = AppGamesIndexRouteImport.update({
   id: '/games/',
   path: '/games/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppGamesGameIdRoute = AppGamesGameIdRouteImport.update({
-  id: '/games/$gameId',
-  path: '/games/$gameId',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppGamesMapQuizRoute = AppGamesMapQuizRouteImport.update({
-  id: '/games/map-quiz',
-  path: '/games/map-quiz',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppGamesTermMatchRoute = AppGamesTermMatchRouteImport.update({
-  id: '/games/term-match',
-  path: '/games/term-match',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppTeacherAssignmentsRoute = AppTeacherAssignmentsRouteImport.update({
-  id: '/assignments',
-  path: '/assignments',
-  getParentRoute: () => AppTeacherRoute,
-} as any)
-const AppTeacherClassesRoute = AppTeacherClassesRouteImport.update({
-  id: '/classes',
-  path: '/classes',
+const AppTeacherWorksheetsRoute = AppTeacherWorksheetsRouteImport.update({
+  id: '/worksheets',
+  path: '/worksheets',
   getParentRoute: () => AppTeacherRoute,
 } as any)
 const AppTeacherQuizzesRoute = AppTeacherQuizzesRouteImport.update({
@@ -163,10 +138,45 @@ const AppTeacherQuizzesRoute = AppTeacherQuizzesRouteImport.update({
   path: '/quizzes',
   getParentRoute: () => AppTeacherRoute,
 } as any)
-const AppTeacherWorksheetsRoute = AppTeacherWorksheetsRouteImport.update({
-  id: '/worksheets',
-  path: '/worksheets',
+const AppTeacherClassesRoute = AppTeacherClassesRouteImport.update({
+  id: '/classes',
+  path: '/classes',
   getParentRoute: () => AppTeacherRoute,
+} as any)
+const AppTeacherAssignmentsRoute = AppTeacherAssignmentsRouteImport.update({
+  id: '/assignments',
+  path: '/assignments',
+  getParentRoute: () => AppTeacherRoute,
+} as any)
+const AppGamesTermMatchRoute = AppGamesTermMatchRouteImport.update({
+  id: '/games/term-match',
+  path: '/games/term-match',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGamesMapQuizRoute = AppGamesMapQuizRouteImport.update({
+  id: '/games/map-quiz',
+  path: '/games/map-quiz',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGamesGameIdRoute = AppGamesGameIdRouteImport.update({
+  id: '/games/$gameId',
+  path: '/games/$gameId',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAssignmentsIdRoute = AppAssignmentsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppAssignmentsRoute,
+} as any)
+const AppTeacherWorksheetsIdRoute = AppTeacherWorksheetsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppTeacherWorksheetsRoute,
+} as any)
+const AppTeacherQuizzesIdRoute = AppTeacherQuizzesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppTeacherQuizzesRoute,
 } as any)
 const AppTeacherGradebookAssignmentIdRoute =
   AppTeacherGradebookAssignmentIdRouteImport.update({
@@ -174,16 +184,6 @@ const AppTeacherGradebookAssignmentIdRoute =
     path: '/gradebook/$assignmentId',
     getParentRoute: () => AppTeacherRoute,
   } as any)
-const AppTeacherQuizzesIdRoute = AppTeacherQuizzesIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AppTeacherQuizzesRoute,
-} as any)
-const AppTeacherWorksheetsIdRoute = AppTeacherWorksheetsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AppTeacherWorksheetsRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -381,25 +381,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_app': {
-      id: '/_app'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AppRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -409,81 +395,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/about': {
-      id: '/_app/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AppAboutRouteImport
-      parentRoute: typeof AppRoute
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/assignments': {
-      id: '/_app/assignments'
-      path: '/assignments'
-      fullPath: '/assignments'
-      preLoaderRoute: typeof AppAssignmentsRouteImport
-      parentRoute: typeof AppRoute
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/chatbot': {
-      id: '/_app/chatbot'
-      path: '/chatbot'
-      fullPath: '/chatbot'
-      preLoaderRoute: typeof AppChatbotRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/classes': {
-      id: '/_app/classes'
-      path: '/classes'
-      fullPath: '/classes'
-      preLoaderRoute: typeof AppClassesRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/dashboard': {
-      id: '/_app/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AppDashboardRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/geosnap': {
-      id: '/_app/geosnap'
-      path: '/geosnap'
-      fullPath: '/geosnap'
-      preLoaderRoute: typeof AppGeosnapRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/image-generator': {
-      id: '/_app/image-generator'
-      path: '/image-generator'
-      fullPath: '/image-generator'
-      preLoaderRoute: typeof AppImageGeneratorRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/journal': {
-      id: '/_app/journal'
-      path: '/journal'
-      fullPath: '/journal'
-      preLoaderRoute: typeof AppJournalRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/learn': {
-      id: '/_app/learn'
-      path: '/learn'
-      fullPath: '/learn'
-      preLoaderRoute: typeof AppLearnRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/profile': {
-      id: '/_app/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof AppProfileRouteImport
+    '/_app/video-generator': {
+      id: '/_app/video-generator'
+      path: '/video-generator'
+      fullPath: '/video-generator'
+      preLoaderRoute: typeof AppVideoGeneratorRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/teacher': {
@@ -493,19 +430,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTeacherRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/video-generator': {
-      id: '/_app/video-generator'
-      path: '/video-generator'
-      fullPath: '/video-generator'
-      preLoaderRoute: typeof AppVideoGeneratorRouteImport
+    '/_app/profile': {
+      id: '/_app/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/assignments/$id': {
-      id: '/_app/assignments/$id'
-      path: '/$id'
-      fullPath: '/assignments/$id'
-      preLoaderRoute: typeof AppAssignmentsIdRouteImport
-      parentRoute: typeof AppAssignmentsRoute
+    '/_app/learn': {
+      id: '/_app/learn'
+      path: '/learn'
+      fullPath: '/learn'
+      preLoaderRoute: typeof AppLearnRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/journal': {
+      id: '/_app/journal'
+      path: '/journal'
+      fullPath: '/journal'
+      preLoaderRoute: typeof AppJournalRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/image-generator': {
+      id: '/_app/image-generator'
+      path: '/image-generator'
+      fullPath: '/image-generator'
+      preLoaderRoute: typeof AppImageGeneratorRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/geosnap': {
+      id: '/_app/geosnap'
+      path: '/geosnap'
+      fullPath: '/geosnap'
+      preLoaderRoute: typeof AppGeosnapRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/classes': {
+      id: '/_app/classes'
+      path: '/classes'
+      fullPath: '/classes'
+      preLoaderRoute: typeof AppClassesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/chatbot': {
+      id: '/_app/chatbot'
+      path: '/chatbot'
+      fullPath: '/chatbot'
+      preLoaderRoute: typeof AppChatbotRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/assignments': {
+      id: '/_app/assignments'
+      path: '/assignments'
+      fullPath: '/assignments'
+      preLoaderRoute: typeof AppAssignmentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/about': {
+      id: '/_app/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AppAboutRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/games/': {
       id: '/_app/games/'
@@ -514,39 +507,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppGamesIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/games/$gameId': {
-      id: '/_app/games/$gameId'
-      path: '/games/$gameId'
-      fullPath: '/games/$gameId'
-      preLoaderRoute: typeof AppGamesGameIdRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/games/map-quiz': {
-      id: '/_app/games/map-quiz'
-      path: '/games/map-quiz'
-      fullPath: '/games/map-quiz'
-      preLoaderRoute: typeof AppGamesMapQuizRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/games/term-match': {
-      id: '/_app/games/term-match'
-      path: '/games/term-match'
-      fullPath: '/games/term-match'
-      preLoaderRoute: typeof AppGamesTermMatchRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/teacher/assignments': {
-      id: '/_app/teacher/assignments'
-      path: '/assignments'
-      fullPath: '/teacher/assignments'
-      preLoaderRoute: typeof AppTeacherAssignmentsRouteImport
-      parentRoute: typeof AppTeacherRoute
-    }
-    '/_app/teacher/classes': {
-      id: '/_app/teacher/classes'
-      path: '/classes'
-      fullPath: '/teacher/classes'
-      preLoaderRoute: typeof AppTeacherClassesRouteImport
+    '/_app/teacher/worksheets': {
+      id: '/_app/teacher/worksheets'
+      path: '/worksheets'
+      fullPath: '/teacher/worksheets'
+      preLoaderRoute: typeof AppTeacherWorksheetsRouteImport
       parentRoute: typeof AppTeacherRoute
     }
     '/_app/teacher/quizzes': {
@@ -556,19 +521,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTeacherQuizzesRouteImport
       parentRoute: typeof AppTeacherRoute
     }
-    '/_app/teacher/worksheets': {
-      id: '/_app/teacher/worksheets'
-      path: '/worksheets'
-      fullPath: '/teacher/worksheets'
-      preLoaderRoute: typeof AppTeacherWorksheetsRouteImport
+    '/_app/teacher/classes': {
+      id: '/_app/teacher/classes'
+      path: '/classes'
+      fullPath: '/teacher/classes'
+      preLoaderRoute: typeof AppTeacherClassesRouteImport
       parentRoute: typeof AppTeacherRoute
     }
-    '/_app/teacher/gradebook/$assignmentId': {
-      id: '/_app/teacher/gradebook/$assignmentId'
-      path: '/gradebook/$assignmentId'
-      fullPath: '/teacher/gradebook/$assignmentId'
-      preLoaderRoute: typeof AppTeacherGradebookAssignmentIdRouteImport
+    '/_app/teacher/assignments': {
+      id: '/_app/teacher/assignments'
+      path: '/assignments'
+      fullPath: '/teacher/assignments'
+      preLoaderRoute: typeof AppTeacherAssignmentsRouteImport
       parentRoute: typeof AppTeacherRoute
+    }
+    '/_app/games/term-match': {
+      id: '/_app/games/term-match'
+      path: '/games/term-match'
+      fullPath: '/games/term-match'
+      preLoaderRoute: typeof AppGamesTermMatchRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/games/map-quiz': {
+      id: '/_app/games/map-quiz'
+      path: '/games/map-quiz'
+      fullPath: '/games/map-quiz'
+      preLoaderRoute: typeof AppGamesMapQuizRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/games/$gameId': {
+      id: '/_app/games/$gameId'
+      path: '/games/$gameId'
+      fullPath: '/games/$gameId'
+      preLoaderRoute: typeof AppGamesGameIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/assignments/$id': {
+      id: '/_app/assignments/$id'
+      path: '/$id'
+      fullPath: '/assignments/$id'
+      preLoaderRoute: typeof AppAssignmentsIdRouteImport
+      parentRoute: typeof AppAssignmentsRoute
+    }
+    '/_app/teacher/worksheets/$id': {
+      id: '/_app/teacher/worksheets/$id'
+      path: '/$id'
+      fullPath: '/teacher/worksheets/$id'
+      preLoaderRoute: typeof AppTeacherWorksheetsIdRouteImport
+      parentRoute: typeof AppTeacherWorksheetsRoute
     }
     '/_app/teacher/quizzes/$id': {
       id: '/_app/teacher/quizzes/$id'
@@ -577,12 +577,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTeacherQuizzesIdRouteImport
       parentRoute: typeof AppTeacherQuizzesRoute
     }
-    '/_app/teacher/worksheets/$id': {
-      id: '/_app/teacher/worksheets/$id'
-      path: '/$id'
-      fullPath: '/teacher/worksheets/$id'
-      preLoaderRoute: typeof AppTeacherWorksheetsIdRouteImport
-      parentRoute: typeof AppTeacherWorksheetsRoute
+    '/_app/teacher/gradebook/$assignmentId': {
+      id: '/_app/teacher/gradebook/$assignmentId'
+      path: '/gradebook/$assignmentId'
+      fullPath: '/teacher/gradebook/$assignmentId'
+      preLoaderRoute: typeof AppTeacherGradebookAssignmentIdRouteImport
+      parentRoute: typeof AppTeacherRoute
     }
   }
 }
