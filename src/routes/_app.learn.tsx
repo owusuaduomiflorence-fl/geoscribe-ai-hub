@@ -21,29 +21,43 @@ export const Route = createFileRoute("/_app/learn")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>): { snap?: string } => (typeof s.snap === "string" ? { snap: s.snap } : {}),
   component: LearnPage,
 });
 
-const LABS = [
-  { id: "contour", title: "⛰️ Contour Lab", el: ContourLab },
-  { id: "scale", title: "📏 Scale & Distance", el: ScaleLab },
-  { id: "grid", title: "🧭 Grid References", el: GridLab },
-  { id: "symbols", title: "🗺️ Map Symbols", el: SymbolsLab },
-];
+type Snap = { id: string; feature: string; category: string | null; topic: string | null; approx_location: string | null; result: any; created_at: string };
 
-const TOPICS: Record<string, string[]> = {
-  "Map work": ["Contours & relief features", "Map scale & distance", "Grid references & bearings", "Gradient & cross-sections", "Map symbols & keys"],
-  "Physical": ["Rocks & minerals", "Weathering & erosion", "Rivers & drainage", "Weather & climate of Ghana", "Vegetation zones of Ghana", "Earthquakes & volcanoes", "Coastal landforms"],
-  "Human & economic": ["Population of Ghana", "Settlements & urbanisation", "Agriculture in Ghana", "Mining & industry", "Transport & trade", "Tourism"],
-  "Environment & world": ["Climate change", "Deforestation & conservation", "Solar system & the Earth", "Latitude & longitude", "Africa's regions"],
-};
+function labFor(s: Snap) {
+  const t = `${s.feature} ${s.category ?? ""} ${s.topic ?? ""}`.toLowerCase();
+  if (/hill|mountain|valley|plateau|relief|slope|escarpment|cliff|scarp|rock|erosion/.test(t)) return "contour";
+  if (/road|transport|rail|bridge|distance|river|stream/.test(t)) return "scale";
+  if (/settlement|urban|rural|building|town|city|village|farm|agric|land.?use/.test(t)) return "grid";
+  return "symbols";
+}
 
-type Msg = { role: "user" | "assistant"; content: string; check?: { prompt: string; options: string[] } | null };
+function snapContext(s: Snap) {
+  const r = s.result ?? {};
+  const vocab = Array.isArray(r.vocabulary) ? r.vocabulary.map((v: any) => v.term).join(", ") : "";
+  return [`Feature: ${s.feature}`, s.category && `Category: ${s.category}`, s.topic && `Topic: ${s.topic}`,
+    r.what_is_it && `What it is: ${String(r.what_is_it).slice(0, 300)}`, vocab && `Vocabulary: ${vocab}`,
+    s.approx_location && `Approximate area (lat,lng ~10km): ${s.approx_location}`].filter(Boolean).join("\n").slice(0, 1200);
+}
+
+function SnapMap({ loc }: { loc: string }) {
+  const [lat, lng] = loc.split(",").map((n) => parseFloat(n));
+  if (!isFinite(lat) || !isFinite(lng)) return null;
+  const d = 0.08;
+  return <iframe title="Snap area map" className="h-48 w-full rounded-xl border" loading="lazy"
+    src={`https://www.openstreetmap.org/export/embed.html?bbox=${lng - d},${lat - d},${lng + d},${lat + d}&layer=mapnik&marker=${lat},${lng}`} />;
+}
 
 function LearnPage() {
   const { user } = useAuth();
+  const { snap: snapId } = Route.useSearch();
   const [xp, setXp] = useState(0);
   const [lab, setLab] = useState("contour");
+  const [snaps, setSnaps] = useState<Snap[]>([]);
+  const [active, setActive] = useState<Snap | null>(null);
 
   const award = async (n: number, source: string) => {
     setXp((x) => x + n);
@@ -55,7 +69,16 @@ function LearnPage() {
     supabase.from("game_scores").select("score").eq("user_id", user.id).like("game", "learn:%").then(({ data }) => {
       setXp((data ?? []).reduce((s, r) => s + Number(r.score), 0));
     });
-  }, [user]);
+    supabase.from("geosnap_discoveries").select("id,feature,category,topic,approx_location,result,created_at")
+      .eq("user_id", user.id).order("created_at", { ascending: false }).limit(8).then(({ data }) => {
+        const list = (data ?? []) as Snap[];
+        setSnaps(list);
+        const pick = list.find((s) => s.id === snapId);
+        if (pick) useSnap(pick);
+      });
+  }, [user, snapId]);
+
+  const useSnap = (s: Snap) => { setActive(s); setLab(labFor(s)); };
 
   const Active = LABS.find((l) => l.id === lab)!.el;
 
@@ -70,6 +93,35 @@ function LearnPage() {
       </header>
 
       <section className="rounded-2xl border bg-card p-4 md:p-6">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-display text-xl font-bold">📸 Learn from your snaps</h2>
+          <Link to="/geosnap" className="text-sm font-medium text-primary hover:underline">Snap something new →</Link>
+        </div>
+        {snaps.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Snap a real landscape with GeoSnap and it will appear here — we'll pick the right map lab and the coach will teach you using your own photo.</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {snaps.map((s) => (
+              <Button key={s.id} size="sm" variant={active?.id === s.id ? "default" : "outline"} onClick={() => useSnap(s)}>
+                {s.feature}
+              </Button>
+            ))}
+          </div>
+        )}
+        {active && (
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div className="space-y-2 text-sm">
+              <p><b>{active.feature}</b>{active.topic ? ` · ${active.topic}` : ""}</p>
+              {active.result?.what_is_it && <p className="text-muted-foreground">{String(active.result.what_is_it).slice(0, 220)}</p>}
+              <p>🧪 Suggested lab: <b>{LABS.find((l) => l.id === labFor(active))!.title}</b> (opened below)</p>
+              <p>🦉 The coach below is now teaching from this snap.</p>
+            </div>
+            {active.approx_location ? <SnapMap loc={active.approx_location} /> : <p className="text-sm text-muted-foreground">No location was shared for this snap, so the map is hidden.</p>}
+          </div>
+        )}
+      </section>
+
+      <section className="rounded-2xl border bg-card p-4 md:p-6">
         <h2 className="mb-3 font-display text-xl font-bold">Map Skills Labs</h2>
         <div className="mb-4 flex flex-wrap gap-2">
           {LABS.map((l) => (
@@ -79,7 +131,7 @@ function LearnPage() {
         <Active onXp={award} />
       </section>
 
-      <Coach onXp={(n) => award(n, "coach")} />
+      <Coach key={active?.id ?? "none"} snap={active} onXp={(n) => award(n, active ? "snap-coach" : "coach")} />
     </div>
   );
 }
