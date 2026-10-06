@@ -445,12 +445,16 @@ function LearningResult(props: {
 
       <div className="rounded-3xl border bg-card p-5">
         <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Keep learning</h3>
-        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-6">
           <OptBtn icon={Film} label="Watch a Short Video" active={tab === "video"} onClick={() => setTab("video")} />
           <OptBtn icon={MapPin} label="Explore on Map" active={tab === "map"} onClick={() => setTab("map")} />
           <Link to="/chatbot" search={{ q: `I just snapped a photo of ${r.feature} (${r.topic}). Can you teach me more about it with Ghanaian examples?` }}
             className="flex flex-col items-center gap-1 rounded-2xl border bg-background p-3 text-center text-xs font-medium hover:border-primary">
             <Bot className="h-5 w-5 text-primary" />Ask GeoGuide
+          </Link>
+          <Link to="/learn" search={{ snap: d.id }}
+            className="flex flex-col items-center gap-1 rounded-2xl border bg-background p-3 text-center text-xs font-medium hover:border-primary">
+            <BookOpen className="h-5 w-5 text-accent" />Lesson & Lab
           </Link>
           <OptBtn icon={Target} label="Take a Quiz" active={tab === "quiz"} onClick={() => setTab("quiz")} />
           <OptBtn icon={BookOpen} label="Learn More" active={tab === "more"} onClick={() => setTab("more")} />

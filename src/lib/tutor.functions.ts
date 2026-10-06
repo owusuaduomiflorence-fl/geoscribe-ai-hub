@@ -14,6 +14,7 @@ const Input = z.object({
   topic: z.string().min(1).max(160),
   level: z.enum(["JHS", "SHS"]),
   messages: z.array(Msg).max(40),
+  snap: z.string().max(1200).optional(),
 });
 
 const schema = {
@@ -51,7 +52,9 @@ Topic: "${data.topic}". Teach it INTERACTIVELY in small bites, like a game:
 - Award xp: 10 for a correct answer, 2 for a try, 0 when no answer was given.
 - Mix in challenges, mini-stories, "imagine you are a surveyor..." scenarios, and fun facts. After ~6 bites give a short recap and a final boss question.
 - For map skills (contours, scale, grid references, bearings, symbols) include worked numeric examples.
-- Stay on geography. Reply in JSON matching the schema.`;
+- Stay on geography. Reply in JSON matching the schema.${data.snap ? `
+The student PHOTOGRAPHED this real feature with GeoSnap — build the whole lesson around their photo, refer to "the feature you snapped", and relate map skills (how it appears on a topographic map: contours, symbols, scale) to it:
+${data.snap}` : ""}`;
     const input = data.messages.length
       ? data.messages.map((m) => ({ role: m.role, content: m.content }))
       : [{ role: "user", content: `Start my lesson on ${data.topic}. Reply in json.` }];
