@@ -137,7 +137,7 @@ function ErrComp({ error }: ErrorComponentProps) {
       <div>
         <h1 className="text-xl font-semibold">Something went wrong</h1>
         <p className="text-sm text-muted-foreground mt-2">
-          {import.meta.env.DEV ? error.message : "An unexpected error occurred. Please try again."}
+          {import.meta.env.DEV ? (error as Error)?.message : "An unexpected error occurred. Please try again."}
         </p>
       </div>
     </div>
