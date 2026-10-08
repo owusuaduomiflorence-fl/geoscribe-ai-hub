@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import ReactMarkdown from "react-markdown";
@@ -136,7 +136,7 @@ function LearnPage() {
   );
 }
 
-function Coach({ onXp }: { onXp: (n: number) => void }) {
+function Coach({ onXp, snap }: { onXp: (n: number) => void; snap: Snap | null }) {
   const run = useServerFn(tutorTurn);
   const [level, setLevel] = useState<"JHS" | "SHS">("JHS");
   const [topic, setTopic] = useState<string | null>(null);
@@ -146,12 +146,13 @@ function Coach({ onXp }: { onXp: (n: number) => void }) {
   const [busy, setBusy] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => { if (snap) start(`${snap.feature} (my GeoSnap photo)`); }, []);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }); }, [msgs, busy]);
 
   const send = async (t: string, history: Msg[]) => {
     setBusy(true);
     try {
-      const res = await run({ data: { topic: t, level, messages: history.map(({ role, content }) => ({ role, content })) } });
+      const res = await run({ data: { topic: t, level, messages: history.map(({ role, content }) => ({ role, content })), snap: snap ? snapContext(snap) : undefined } });
       if (res.xp > 0) { onXp(res.xp); toast.success(`+${res.xp} XP`); }
       setMsgs([...history, { role: "assistant", content: res.message, check: res.check }]);
     } catch (e) {
