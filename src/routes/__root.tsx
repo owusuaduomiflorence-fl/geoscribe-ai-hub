@@ -129,7 +129,7 @@ function NotFound() {
   );
 }
 
-function ErrComp({ error }: { error: Error }) {
+function ErrComp({ error }: ErrorComponentProps) {
   if (import.meta.env.DEV) console.error("Route error:", error);
   return (
     <div className="min-h-screen grid place-items-center px-4 text-center">
