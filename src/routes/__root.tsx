@@ -5,6 +5,7 @@ import {
   createRootRouteWithContext,
   HeadContent,
   Scripts,
+  type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth";
@@ -129,14 +130,14 @@ function NotFound() {
   );
 }
 
-function ErrComp({ error }: { error: Error }) {
+function ErrComp({ error }: ErrorComponentProps) {
   if (import.meta.env.DEV) console.error("Route error:", error);
   return (
     <div className="min-h-screen grid place-items-center px-4 text-center">
       <div>
         <h1 className="text-xl font-semibold">Something went wrong</h1>
         <p className="text-sm text-muted-foreground mt-2">
-          {import.meta.env.DEV ? error.message : "An unexpected error occurred. Please try again."}
+          {import.meta.env.DEV ? (error as Error)?.message : "An unexpected error occurred. Please try again."}
         </p>
       </div>
     </div>

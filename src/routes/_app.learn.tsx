@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import ReactMarkdown from "react-markdown";
@@ -24,6 +24,22 @@ export const Route = createFileRoute("/_app/learn")({
   validateSearch: (s: Record<string, unknown>): { snap?: string } => (typeof s.snap === "string" ? { snap: s.snap } : {}),
   component: LearnPage,
 });
+
+const LABS = [
+  { id: "contour", title: "⛰️ Contour Lab", el: ContourLab },
+  { id: "scale", title: "📏 Scale & Distance", el: ScaleLab },
+  { id: "grid", title: "🧭 Grid References", el: GridLab },
+  { id: "symbols", title: "🗺️ Map Symbols", el: SymbolsLab },
+];
+
+const TOPICS: Record<string, string[]> = {
+  "Map work": ["Contours & relief features", "Map scale & distance", "Grid references & bearings", "Gradient & cross-sections", "Map symbols & keys"],
+  "Physical": ["Rocks & minerals", "Weathering & erosion", "Rivers & drainage", "Weather & climate of Ghana", "Vegetation zones of Ghana", "Earthquakes & volcanoes", "Coastal landforms"],
+  "Human & economic": ["Population of Ghana", "Settlements & urbanisation", "Agriculture in Ghana", "Mining & industry", "Transport & trade", "Tourism"],
+  "Environment & world": ["Climate change", "Deforestation & conservation", "Solar system & the Earth", "Latitude & longitude", "Africa's regions"],
+};
+
+type Msg = { role: "user" | "assistant"; content: string; check?: { prompt: string; options: string[] } | null };
 
 type Snap = { id: string; feature: string; category: string | null; topic: string | null; approx_location: string | null; result: any; created_at: string };
 
@@ -136,7 +152,7 @@ function LearnPage() {
   );
 }
 
-function Coach({ onXp }: { onXp: (n: number) => void }) {
+function Coach({ onXp, snap }: { onXp: (n: number) => void; snap: Snap | null }) {
   const run = useServerFn(tutorTurn);
   const [level, setLevel] = useState<"JHS" | "SHS">("JHS");
   const [topic, setTopic] = useState<string | null>(null);
@@ -146,12 +162,13 @@ function Coach({ onXp }: { onXp: (n: number) => void }) {
   const [busy, setBusy] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => { if (snap) start(`${snap.feature} (my GeoSnap photo)`); }, []);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }); }, [msgs, busy]);
 
   const send = async (t: string, history: Msg[]) => {
     setBusy(true);
     try {
-      const res = await run({ data: { topic: t, level, messages: history.map(({ role, content }) => ({ role, content })) } });
+      const res = await run({ data: { topic: t, level, messages: history.map(({ role, content }) => ({ role, content })), snap: snap ? snapContext(snap) : undefined } });
       if (res.xp > 0) { onXp(res.xp); toast.success(`+${res.xp} XP`); }
       setMsgs([...history, { role: "assistant", content: res.message, check: res.check }]);
     } catch (e) {
