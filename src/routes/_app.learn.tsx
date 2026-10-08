@@ -25,6 +25,22 @@ export const Route = createFileRoute("/_app/learn")({
   component: LearnPage,
 });
 
+const LABS = [
+  { id: "contour", title: "⛰️ Contour Lab", el: ContourLab },
+  { id: "scale", title: "📏 Scale & Distance", el: ScaleLab },
+  { id: "grid", title: "🧭 Grid References", el: GridLab },
+  { id: "symbols", title: "🗺️ Map Symbols", el: SymbolsLab },
+];
+
+const TOPICS: Record<string, string[]> = {
+  "Map work": ["Contours & relief features", "Map scale & distance", "Grid references & bearings", "Gradient & cross-sections", "Map symbols & keys"],
+  "Physical": ["Rocks & minerals", "Weathering & erosion", "Rivers & drainage", "Weather & climate of Ghana", "Vegetation zones of Ghana", "Earthquakes & volcanoes", "Coastal landforms"],
+  "Human & economic": ["Population of Ghana", "Settlements & urbanisation", "Agriculture in Ghana", "Mining & industry", "Transport & trade", "Tourism"],
+  "Environment & world": ["Climate change", "Deforestation & conservation", "Solar system & the Earth", "Latitude & longitude", "Africa's regions"],
+};
+
+type Msg = { role: "user" | "assistant"; content: string; check?: { prompt: string; options: string[] } | null };
+
 type Snap = { id: string; feature: string; category: string | null; topic: string | null; approx_location: string | null; result: any; created_at: string };
 
 function labFor(s: Snap) {
