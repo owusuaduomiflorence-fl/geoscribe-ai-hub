@@ -59,7 +59,7 @@ const Input = z.object({
 export const analyzeSnap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => Input.parse(d))
-  .handler(async ({ data }): Promise<SnapResult> => {
+  .handler(async ({ data, context }): Promise<SnapResult> => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("AI is not configured.");
 
@@ -139,5 +139,10 @@ export const analyzeSnap = createServerFn({ method: "POST" })
     parsed.vocabulary ??= [];
     parsed.where_found ??= [];
     parsed.learn_more ??= [];
+    try {
+      const { retrieve } = await import("./rag.server");
+      const rag = await retrieve(context.supabase as any, context.userId, `${parsed.feature} ${parsed.topic}`, 3);
+      parsed.sources = rag.sources.filter((s) => !(s.type === "snap" && s.title === `My snap: ${parsed.feature}`));
+    } catch (e) { console.error("geosnap retrieve", e); }
     return parsed;
   });
