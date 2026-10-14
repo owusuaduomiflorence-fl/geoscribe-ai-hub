@@ -23,6 +23,7 @@ import { Route as AppGeosnapRouteImport } from './routes/_app.geosnap'
 import { Route as AppImageGeneratorRouteImport } from './routes/_app.image-generator'
 import { Route as AppJournalRouteImport } from './routes/_app.journal'
 import { Route as AppLearnRouteImport } from './routes/_app.learn'
+import { Route as AppLibraryRouteImport } from './routes/_app.library'
 import { Route as AppProfileRouteImport } from './routes/_app.profile'
 import { Route as AppTeacherRouteImport } from './routes/_app.teacher'
 import { Route as AppVideoGeneratorRouteImport } from './routes/_app.video-generator'
@@ -106,6 +107,11 @@ const AppJournalRoute = AppJournalRouteImport.update({
 const AppLearnRoute = AppLearnRouteImport.update({
   id: '/learn',
   path: '/learn',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLibraryRoute = AppLibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProfileRoute = AppProfileRouteImport.update({
@@ -199,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/image-generator': typeof AppImageGeneratorRoute
   '/journal': typeof AppJournalRoute
   '/learn': typeof AppLearnRoute
+  '/library': typeof AppLibraryRoute
   '/profile': typeof AppProfileRoute
   '/teacher': typeof AppTeacherRouteWithChildren
   '/video-generator': typeof AppVideoGeneratorRoute
@@ -229,6 +236,7 @@ export interface FileRoutesByTo {
   '/image-generator': typeof AppImageGeneratorRoute
   '/journal': typeof AppJournalRoute
   '/learn': typeof AppLearnRoute
+  '/library': typeof AppLibraryRoute
   '/profile': typeof AppProfileRoute
   '/teacher': typeof AppTeacherRouteWithChildren
   '/video-generator': typeof AppVideoGeneratorRoute
@@ -261,6 +269,7 @@ export interface FileRoutesById {
   '/_app/image-generator': typeof AppImageGeneratorRoute
   '/_app/journal': typeof AppJournalRoute
   '/_app/learn': typeof AppLearnRoute
+  '/_app/library': typeof AppLibraryRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/teacher': typeof AppTeacherRouteWithChildren
   '/_app/video-generator': typeof AppVideoGeneratorRoute
@@ -293,6 +302,7 @@ export interface FileRouteTypes {
     | '/image-generator'
     | '/journal'
     | '/learn'
+    | '/library'
     | '/profile'
     | '/teacher'
     | '/video-generator'
@@ -323,6 +333,7 @@ export interface FileRouteTypes {
     | '/image-generator'
     | '/journal'
     | '/learn'
+    | '/library'
     | '/profile'
     | '/teacher'
     | '/video-generator'
@@ -354,6 +365,7 @@ export interface FileRouteTypes {
     | '/_app/image-generator'
     | '/_app/journal'
     | '/_app/learn'
+    | '/_app/library'
     | '/_app/profile'
     | '/_app/teacher'
     | '/_app/video-generator'
@@ -477,6 +489,13 @@ declare module '@tanstack/react-router' {
       path: '/learn'
       fullPath: '/learn'
       preLoaderRoute: typeof AppLearnRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/library': {
+      id: '/_app/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof AppLibraryRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/profile': {
@@ -651,6 +670,7 @@ interface AppRouteChildren {
   AppImageGeneratorRoute: typeof AppImageGeneratorRoute
   AppJournalRoute: typeof AppJournalRoute
   AppLearnRoute: typeof AppLearnRoute
+  AppLibraryRoute: typeof AppLibraryRoute
   AppProfileRoute: typeof AppProfileRoute
   AppTeacherRoute: typeof AppTeacherRouteWithChildren
   AppVideoGeneratorRoute: typeof AppVideoGeneratorRoute
@@ -670,6 +690,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppImageGeneratorRoute: AppImageGeneratorRoute,
   AppJournalRoute: AppJournalRoute,
   AppLearnRoute: AppLearnRoute,
+  AppLibraryRoute: AppLibraryRoute,
   AppProfileRoute: AppProfileRoute,
   AppTeacherRoute: AppTeacherRouteWithChildren,
   AppVideoGeneratorRoute: AppVideoGeneratorRoute,
