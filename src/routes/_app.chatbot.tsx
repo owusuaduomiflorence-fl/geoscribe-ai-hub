@@ -248,6 +248,7 @@ function Chatbot() {
                 {m.role === "assistant" ? (
                   <div className="prose prose-invert prose-sm max-w-none prose-table:my-2 prose-th:bg-muted/30 prose-th:px-2 prose-th:py-1 prose-td:px-2 prose-td:py-1 prose-th:border prose-td:border prose-th:border-border prose-td:border-border prose-a:text-primary prose-a:underline">
                     <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: (props) => <a {...props} target="_blank" rel="noopener noreferrer" /> }}>{m.content || "…"}</ReactMarkdown>
+                    <SourceList sources={m.sources} />
                   </div>
                 ) : (
                   m.content
