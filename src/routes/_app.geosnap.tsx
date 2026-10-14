@@ -1,3 +1,4 @@
+import { SourceList } from "@/components/SourceList";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -466,6 +467,7 @@ function LearningResult(props: {
           {tab === "more" && (
             <ul className="space-y-2 text-sm">
               {r.learn_more.map((l) => <li key={l.url}><a className="text-primary underline" href={l.url} target="_blank" rel="noreferrer">{l.title}</a></li>)}
+              {r.sources?.length ? <li><p className="font-semibold">From your study library</p><SourceList sources={r.sources} /></li> : null}
               <li><Link to="/games" className="text-primary underline">Play geography games</Link> · <Link to="/image-generator" className="text-primary underline">Make a diagram</Link></li>
             </ul>
           )}

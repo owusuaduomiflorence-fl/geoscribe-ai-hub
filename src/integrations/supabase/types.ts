@@ -356,6 +356,45 @@ export type Database = {
         }
         Relationships: []
       }
+      knowledge_chunks: {
+        Row: {
+          chunk_index: number
+          content: string
+          created_at: string
+          embedding: string
+          id: string
+          owner_id: string | null
+          shared: boolean
+          source_ref: string | null
+          source_title: string
+          source_type: string
+        }
+        Insert: {
+          chunk_index?: number
+          content: string
+          created_at?: string
+          embedding: string
+          id?: string
+          owner_id?: string | null
+          shared?: boolean
+          source_ref?: string | null
+          source_title: string
+          source_type: string
+        }
+        Update: {
+          chunk_index?: number
+          content?: string
+          created_at?: string
+          embedding?: string
+          id?: string
+          owner_id?: string | null
+          shared?: boolean
+          source_ref?: string | null
+          source_title?: string
+          source_type?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -618,6 +657,16 @@ export type Database = {
         Returns: boolean
       }
       join_class_with_code: { Args: { _code: string }; Returns: string }
+      match_knowledge: {
+        Args: { match_count?: number; query_embedding: string }
+        Returns: {
+          content: string
+          id: string
+          similarity: number
+          source_title: string
+          source_type: string
+        }[]
+      }
     }
     Enums: {
       app_role: "student" | "teacher"

@@ -7,6 +7,7 @@ export type TutorTurn = {
   check: { prompt: string; options: string[] } | null;
   correct: boolean | null;
   xp: number;
+  sources?: { title: string; type: string; snippet: string; similarity: number }[];
 };
 
 const Msg = z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(6000) });
@@ -42,9 +43,15 @@ const schema = {
 export const tutorTurn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => Input.parse(d))
-  .handler(async ({ data }): Promise<TutorTurn> => {
+  .handler(async ({ data, context }): Promise<TutorTurn> => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("AI is not configured.");
+    const lastUser = [...data.messages].reverse().find((m) => m.role === "user")?.content ?? "";
+    const { retrieve, RAG_RULES } = await import("./rag.server");
+    const rag = await retrieve(context.supabase as any, context.userId, `${data.topic}\n${lastUser}`.slice(0, 2000), 4).catch((e) => {
+      console.error("tutor retrieve", e);
+      return { context: "", sources: [] };
+    });
     const instructions = `You are GeoGuide Coach, a playful, encouraging geography tutor for Ghanaian ${data.level} students (GES syllabus).
 Topic: "${data.topic}". Teach it INTERACTIVELY in small bites, like a game:
 - Each turn: give ONE short idea (max ~90 words, markdown, an emoji or two, Ghanaian examples like Volta Lake, Kwahu Plateau, Accra), then ask a quick check question with 3-4 options in "check".
@@ -54,7 +61,7 @@ Topic: "${data.topic}". Teach it INTERACTIVELY in small bites, like a game:
 - For map skills (contours, scale, grid references, bearings, symbols) include worked numeric examples.
 - Stay on geography. Reply in JSON matching the schema.${data.snap ? `
 The student PHOTOGRAPHED this real feature with GeoSnap — build the whole lesson around their photo, refer to "the feature you snapped", and relate map skills (how it appears on a topographic map: contours, symbols, scale) to it:
-${data.snap}` : ""}`;
+${data.snap}` : ""}${rag.context ? `\n\n${RAG_RULES}\nREFERENCE NOTES:\n${rag.context}` : ""}`;
     const input = data.messages.length
       ? data.messages.map((m) => ({ role: m.role, content: m.content }))
       : [{ role: "user", content: `Start my lesson on ${data.topic}. Reply in json.` }];
@@ -110,5 +117,6 @@ ${data.snap}` : ""}`;
     if (!text.trim()) throw new Error("The coach didn't respond. Please try again.");
     const out = JSON.parse(text) as TutorTurn;
     out.xp = Math.max(0, Math.min(10, out.xp || 0));
+    out.sources = rag.sources;
     return out;
   });

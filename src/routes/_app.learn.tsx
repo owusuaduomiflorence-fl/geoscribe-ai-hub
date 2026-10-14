@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { tutorTurn } from "@/lib/tutor.functions";
+import { tutorTurn, type TutorTurn } from "@/lib/tutor.functions";
+import { SourceList } from "@/components/SourceList";
 import { ContourLab, GridLab, ScaleLab, SymbolsLab } from "@/components/learn/MapLabs";
 
 export const Route = createFileRoute("/_app/learn")({
@@ -39,7 +40,7 @@ const TOPICS: Record<string, string[]> = {
   "Environment & world": ["Climate change", "Deforestation & conservation", "Solar system & the Earth", "Latitude & longitude", "Africa's regions"],
 };
 
-type Msg = { role: "user" | "assistant"; content: string; check?: { prompt: string; options: string[] } | null };
+type Msg = { role: "user" | "assistant"; content: string; check?: { prompt: string; options: string[] } | null; sources?: TutorTurn["sources"] };
 
 type Snap = { id: string; feature: string; category: string | null; topic: string | null; approx_location: string | null; result: any; created_at: string };
 
@@ -170,7 +171,7 @@ function Coach({ onXp, snap }: { onXp: (n: number) => void; snap: Snap | null })
     try {
       const res = await run({ data: { topic: t, level, messages: history.map(({ role, content }) => ({ role, content })), snap: snap ? snapContext(snap) : undefined } });
       if (res.xp > 0) { onXp(res.xp); toast.success(`+${res.xp} XP`); }
-      setMsgs([...history, { role: "assistant", content: res.message, check: res.check }]);
+      setMsgs([...history, { role: "assistant", content: res.message, check: res.check, sources: res.sources }]);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Coach failed");
     } finally {
@@ -226,6 +227,7 @@ function Coach({ onXp, snap }: { onXp: (n: number) => void; snap: Snap | null })
                   <>
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
                     {m.check && <p className="font-semibold">❓ {m.check.prompt}</p>}
+                    <SourceList sources={m.sources} />
                   </>
                 )}
               </div>

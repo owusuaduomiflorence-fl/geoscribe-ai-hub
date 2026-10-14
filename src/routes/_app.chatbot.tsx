@@ -9,6 +9,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { retrieveKnowledge, type Source } from "@/lib/rag.functions";
+import { SourceList } from "@/components/SourceList";
 
 export const Route = createFileRoute("/_app/chatbot")({
   validateSearch: (s: Record<string, unknown>): { q?: string } =>
@@ -26,7 +29,7 @@ export const Route = createFileRoute("/_app/chatbot")({
   }),
 });
 
-type Msg = { role: "user" | "assistant"; content: string };
+type Msg = { role: "user" | "assistant"; content: string; sources?: Source[] };
 
 function Chatbot() {
   const { user } = useAuth();
@@ -37,6 +40,7 @@ function Chatbot() {
   const [input, setInput] = useState(q ?? "");
   const [streaming, setStreaming] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const retrieveFn = useServerFn(retrieveKnowledge);
 
   const { data: conversations } = useQuery({
     queryKey: ["conversations", user?.id],
@@ -110,6 +114,7 @@ function Chatbot() {
 
     try {
       const token = await getRequiredAccessToken();
+      const rag = await retrieveFn({ data: { query: userMsg.content } }).catch(() => ({ context: "", sources: [] as Source[] }));
       const resp = await fetch(url, {
         method: "POST",
         headers: {
@@ -117,7 +122,10 @@ function Chatbot() {
           apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ messages: [...messages, userMsg] }),
+        body: JSON.stringify({ messages: [
+          ...(rag.context ? [{ role: "system", content: `Use the numbered REFERENCE NOTES when relevant; prefer them over general knowledge and cite them inline like [1]. Ignore off-topic notes.\nREFERENCE NOTES:\n${rag.context}` }] : []),
+          ...[...messages, userMsg].map(({ role, content }) => ({ role, content })),
+        ] }),
       });
 
       if (!resp.ok || !resp.body) {
@@ -153,7 +161,7 @@ function Chatbot() {
               assistant += c;
               setMessages((prev) => {
                 const copy = [...prev];
-                copy[copy.length - 1] = { role: "assistant", content: assistant };
+                copy[copy.length - 1] = { role: "assistant", content: assistant, sources: rag.sources };
                 return copy;
               });
             }
@@ -240,6 +248,7 @@ function Chatbot() {
                 {m.role === "assistant" ? (
                   <div className="prose prose-invert prose-sm max-w-none prose-table:my-2 prose-th:bg-muted/30 prose-th:px-2 prose-th:py-1 prose-td:px-2 prose-td:py-1 prose-th:border prose-td:border prose-th:border-border prose-td:border-border prose-a:text-primary prose-a:underline">
                     <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: (props) => <a {...props} target="_blank" rel="noopener noreferrer" /> }}>{m.content || "…"}</ReactMarkdown>
+                    <SourceList sources={m.sources} />
                   </div>
                 ) : (
                   m.content
