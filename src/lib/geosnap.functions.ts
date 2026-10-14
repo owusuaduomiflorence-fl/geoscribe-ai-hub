@@ -25,6 +25,7 @@ export type SnapResult = {
     explanation: string;
   }[];
   learn_more: { title: string; url: string }[];
+  sources?: { title: string; type: string; snippet: string; similarity: number }[];
 };
 
 const LEVEL_GUIDE: Record<SnapLevel, string> = {
