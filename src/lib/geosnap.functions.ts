@@ -64,8 +64,8 @@ export const analyzeSnap = createServerFn({ method: "POST" })
     if (!key) throw new Error("AI is not configured.");
 
     const userText = data.chosenFeature
-      ? `The student confirmed this photo shows: "${data.chosenFeature}". Treat it as certain (certain=true, confidence 100) and explain it. Level: ${LEVEL_GUIDE[data.level]}`
-      : `Identify the geographical feature in this photo and teach it. Level: ${LEVEL_GUIDE[data.level]}`;
+      ? `The student confirmed this photo shows: "${data.chosenFeature}". Treat it as certain (certain=true, confidence 100) and explain it. Level: ${LEVEL_GUIDE[data.level]} Reply with the JSON object described in the instructions.`
+      : `Identify the geographical feature in this photo and teach it. Level: ${LEVEL_GUIDE[data.level]} Reply with the JSON object described in the instructions.`;
 
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
