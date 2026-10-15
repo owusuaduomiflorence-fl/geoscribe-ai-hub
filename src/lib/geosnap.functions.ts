@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { SNAP_SYSTEM, normalizeSnap, type ConfidenceLevel } from "./geosnap-prompt";
 
 export type SnapLevel = "simple" | "school" | "deep";
 
@@ -9,8 +10,15 @@ export type SnapResult = {
   feature: string;
   category: string;
   topic: string;
-  confidence: number; // 0-100
-  candidates: { name: string; confidence: number; reason: string }[];
+  confidence: number; // display score derived from confidence_level, not a probability
+  confidence_level?: ConfidenceLevel;
+  evidence?: string[];
+  distinguishing?: string;
+  uncertainty_note?: string;
+  retake_tip?: string;
+  followup_question?: { question: string; options: string[] } | null;
+  interactive_question?: { question: string; options: string[]; answer: string; explanation: string } | null;
+  candidates: { name: string; confidence: number; confidence_level?: ConfidenceLevel; reason: string }[];
   what_is_it: string;
   geography_connection: string;
   where_found: { place: string; detail: string; lat: number | null; lng: number | null }[];
@@ -34,26 +42,11 @@ const LEVEL_GUIDE: Record<SnapLevel, string> = {
   deep: "Deep Dive: for SHS students (ages 15-18). Detailed processes, formation mechanisms, human-environment interaction, 5-8 sentences per section, technical vocabulary.",
 };
 
-const SYSTEM = `You are GeoSnap, the camera-learning guide inside Geoguide AI, a geography app for Ghanaian students.
-You look at a student's photo and identify the most educationally relevant geographical feature (mountains, hills, valleys, rivers, lakes, dams, coastlines, beaches, rocks, soil, vegetation, forests, savannah, farmland, urban/rural settlements, roads, transport, drainage, flooding, erosion, weather features, land use, buildings/settlement patterns).
-Be honest: if the image is ambiguous, blurry, or not geographical, set "certain": false and give 2-4 candidates. Never fake certainty. confidence is 0-100.
-Always prefer Ghanaian examples for "where_found" (e.g. Volta Lake, Akosombo Dam, Mount Afadja, Kakum Forest, Cape Coast, Ada Foah, Kwahu Plateau, Northern savannah, Accra, Kumasi) with approximate lat/lng; you may add one world example.
-Never mention or infer the identity of people in the photo.
-Return ONLY a JSON object with exactly these keys:
-{"certain":bool,"feature":string,"category":string,"topic":string (GES geography topic),"confidence":number,
-"candidates":[{"name":string,"confidence":number,"reason":string}],
-"what_is_it":string,"geography_connection":string,
-"where_found":[{"place":string,"detail":string,"lat":number|null,"lng":number|null}] (3-4 items),
-"why_it_matters":string,
-"vocabulary":[{"term":string,"definition":string}] (3-6 items),
-"video":{"title":string (like "Understanding Ghana's Coastline in 60 Seconds"),"search_query":string (good YouTube search),"segments":[{"heading":string,"narration":string}] covering Location, Definition, Formation/process, Human interaction, Environmental importance, Ghanaian example, Summary},
-"quiz":[{"type":"mcq"|"true_false"|"short","question":string,"options":string[] (4 for mcq, ["True","False"] for true_false, [] for short),"answer":string,"explanation":string}] (4 questions mixing all three types, based on the photo and explanation; short answers should be 1-3 words),
-"learn_more":[{"title":string,"url":string}] (2-3 real, stable URLs from Wikipedia, National Geographic, Britannica or Khan Academy)}`;
-
 const Input = z.object({
   image: z.string().startsWith("data:image/").max(8_000_000),
   level: z.enum(["simple", "school", "deep"]),
   chosenFeature: z.string().max(120).optional(),
+  hint: z.string().max(300).optional(),
 });
 
 export const analyzeSnap = createServerFn({ method: "POST" })
@@ -64,8 +57,8 @@ export const analyzeSnap = createServerFn({ method: "POST" })
     if (!key) throw new Error("AI is not configured.");
 
     const userText = data.chosenFeature
-      ? `The student confirmed this photo shows: "${data.chosenFeature}". Treat it as certain (certain=true, confidence 100) and explain it. Level: ${LEVEL_GUIDE[data.level]} Reply with the JSON object described in the instructions.`
-      : `Identify the geographical feature in this photo and teach it. Level: ${LEVEL_GUIDE[data.level]} Reply with the JSON object described in the instructions.`;
+      ? `The student confirmed this photo shows: "${data.chosenFeature}". Use that as the feature, still list the visible evidence for it honestly, and teach it. Level: ${LEVEL_GUIDE[data.level]} Reply with the JSON object described in the instructions.`
+      : `Identify the geographical feature in this photo and teach it.${data.hint ? ` Extra context from the student (use it as evidence, but do not let it override what the photo clearly shows): "${data.hint}".` : ""} Level: ${LEVEL_GUIDE[data.level]} Reply with the JSON object described in the instructions.`;
 
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
@@ -79,15 +72,15 @@ export const analyzeSnap = createServerFn({ method: "POST" })
         model: "openai/gpt-6-astra",
         stream: true,
         store: false,
-        reasoning: { effort: "low" },
+        reasoning: { effort: "medium" },
         text: { format: { type: "json_object" } },
-        instructions: SYSTEM,
+        instructions: SNAP_SYSTEM,
         input: [
           {
             role: "user",
             content: [
               { type: "input_text", text: userText },
-              { type: "input_image", image_url: data.image },
+              { type: "input_image", image_url: data.image, detail: "high" },
             ],
           },
         ],
@@ -133,12 +126,7 @@ export const analyzeSnap = createServerFn({ method: "POST" })
     if (!text.trim()) throw new Error("GeoSnap could not read this photo. Try another picture.");
     const start = text.indexOf("{");
     const end = text.lastIndexOf("}");
-    const parsed = JSON.parse(text.slice(start, end + 1)) as SnapResult;
-    parsed.candidates ??= [];
-    parsed.quiz ??= [];
-    parsed.vocabulary ??= [];
-    parsed.where_found ??= [];
-    parsed.learn_more ??= [];
+    const parsed = normalizeSnap(JSON.parse(text.slice(start, end + 1)), data.chosenFeature) as unknown as SnapResult;
     try {
       const { retrieve } = await import("./rag.server");
       const rag = await retrieve(context.supabase as any, context.userId, `${parsed.feature} ${parsed.topic}`, 3);
