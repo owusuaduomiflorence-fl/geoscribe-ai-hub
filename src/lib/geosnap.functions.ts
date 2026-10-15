@@ -46,6 +46,7 @@ const Input = z.object({
   image: z.string().startsWith("data:image/").max(8_000_000),
   level: z.enum(["simple", "school", "deep"]),
   chosenFeature: z.string().max(120).optional(),
+  hint: z.string().max(300).optional(),
 });
 
 export const analyzeSnap = createServerFn({ method: "POST" })
@@ -57,7 +58,7 @@ export const analyzeSnap = createServerFn({ method: "POST" })
 
     const userText = data.chosenFeature
       ? `The student confirmed this photo shows: "${data.chosenFeature}". Use that as the feature, still list the visible evidence for it honestly, and teach it. Level: ${LEVEL_GUIDE[data.level]} Reply with the JSON object described in the instructions.`
-      : `Identify the geographical feature in this photo and teach it. Level: ${LEVEL_GUIDE[data.level]} Reply with the JSON object described in the instructions.`;
+      : `Identify the geographical feature in this photo and teach it.${data.hint ? ` Extra context from the student (use it as evidence, but do not let it override what the photo clearly shows): "${data.hint}".` : ""} Level: ${LEVEL_GUIDE[data.level]} Reply with the JSON object described in the instructions.`;
 
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",

@@ -41,14 +41,14 @@ type Discovery = {
   xp_earned: number; xp_events: string[]; result: SnapResult; level: string;
 };
 
-async function resizeImage(file: Blob, max = 1024): Promise<{ dataUrl: string; blob: Blob }> {
+async function resizeImage(file: Blob, max = 1600): Promise<{ dataUrl: string; blob: Blob }> {
   const bmp = await createImageBitmap(file);
   const scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
   const c = document.createElement("canvas");
   c.width = Math.round(bmp.width * scale);
   c.height = Math.round(bmp.height * scale);
   c.getContext("2d")!.drawImage(bmp, 0, 0, c.width, c.height);
-  const dataUrl = c.toDataURL("image/jpeg", 0.82);
+  const dataUrl = c.toDataURL("image/jpeg", 0.88);
   const blob = await (await fetch(dataUrl)).blob();
   return { dataUrl, blob };
 }
@@ -174,6 +174,21 @@ function GeoSnapPage() {
     } finally { setBusy(false); }
   };
 
+  const reAnalyzeWithHint = async (hint: string) => {
+    if (!image || !discovery) return;
+    setBusy(true); setError(null);
+    try {
+      const r = await analyze({ data: { image, level, hint } });
+      setResult(r);
+      const d = { ...discovery, result: r, feature: r.feature, topic: r.topic };
+      setDiscovery(d);
+      await supabase.from("geosnap_discoveries").update({ result: r as never, feature: r.feature, topic: r.topic, confidence: r.confidence }).eq("id", d.id);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Something went wrong";
+      setError(msg); toast.error(msg);
+    } finally { setBusy(false); }
+  };
+
   const changeLevel = (l: SnapLevel) => {
     setLevel(l);
     if (result && discovery && result.certain) reExplain(result.feature, l, false);
@@ -283,13 +298,24 @@ function GeoSnapPage() {
             {result && !busy && !result.certain && (
               <div className="rounded-3xl border bg-card p-6">
                 <p className="flex items-center gap-2 font-semibold"><HelpCircle className="h-5 w-5 text-accent" />I'm not completely sure what I'm seeing. Here are the most likely possibilities.</p>
-                <p className="mt-1 text-sm text-muted-foreground">Tap the one that matches what you photographed.</p>
+                <p className="mt-1 text-sm text-muted-foreground">Tap the one that matches what you photographed, answer the question below, or take a clearer photo.</p>
+                <EvidenceBox r={result} />
+                {result.followup_question && discovery && (
+                  <div className="mt-3 rounded-2xl border p-3">
+                    <p className="text-sm font-semibold">🤔 {result.followup_question.question}</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {result.followup_question.options.map((o) => (
+                        <Button key={o} size="sm" variant="outline" onClick={() => reAnalyzeWithHint(`${result.followup_question!.question} → ${o}`)}>{o}</Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="mt-4 grid gap-2">
                   {[...result.candidates, ...(result.candidates.some((c) => c.name === result.feature) ? [] : [{ name: result.feature, confidence: result.confidence, reason: "" }])].map((c) => (
                     <button key={c.name} onClick={() => reExplain(c.name)} className="rounded-2xl border bg-background p-3 text-left hover:border-primary">
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-medium">{c.name}</span>
-                        <ConfidenceBadge value={c.confidence} />
+                        <ConfidenceBadge value={c.confidence} level={c.confidence_level} />
                       </div>
                       {c.reason && <p className="mt-1 text-xs text-muted-foreground">{c.reason}</p>}
                     </button>
@@ -331,11 +357,39 @@ function GeoSnapPage() {
   );
 }
 
-function ConfidenceBadge({ value }: { value: number }) {
-  const v = Math.round(value);
-  const label = v >= 80 ? "High" : v >= 50 ? "Medium" : "Low";
-  const cls = v >= 80 ? "bg-primary/15 text-primary" : v >= 50 ? "bg-accent/20 text-accent-foreground" : "bg-muted text-muted-foreground";
-  return <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}>{label} · {v}%</span>;
+function ConfidenceBadge({ value, level }: { value: number; level?: string }) {
+  const lv = level ?? (value >= 80 ? "high" : value >= 50 ? "medium" : "low");
+  const label = lv === "high" ? "Clear evidence" : lv === "medium" ? "Likely" : "Unsure";
+  const cls = lv === "high" ? "bg-primary/15 text-primary" : lv === "medium" ? "bg-accent/20 text-accent-foreground" : "bg-muted text-muted-foreground";
+  return <span title="A judgement based on what is visible in the photo, not a measured probability" className={`rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}>{label}</span>;
+}
+
+function EvidenceBox({ r }: { r: SnapResult }) {
+  if (!r.evidence?.length && !r.distinguishing && !r.uncertainty_note) return null;
+  return (
+    <div className="mt-3 rounded-2xl bg-muted/50 p-3 text-sm">
+      {!!r.evidence?.length && (<><p className="font-semibold">What I can see in your photo</p><ul className="ml-4 list-disc">{r.evidence.map((e) => <li key={e}>{e}</li>)}</ul></>)}
+      {r.distinguishing && <p className="mt-2"><b>Why this and not a look-alike:</b> {r.distinguishing}</p>}
+      {r.uncertainty_note && <p className="mt-2 text-muted-foreground"><b>Still uncertain:</b> {r.uncertainty_note}</p>}
+      {r.retake_tip && !r.certain && <p className="mt-2 text-muted-foreground">📷 <b>Better photo tip:</b> {r.retake_tip}</p>}
+    </div>
+  );
+}
+
+function InteractiveQ({ q }: { q: NonNullable<SnapResult["interactive_question"]> }) {
+  const [pick, setPick] = useState<string | null>(null);
+  return (
+    <div className="rounded-3xl border bg-card p-5">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Quick question</h3>
+      <p className="mt-1 font-medium">{q.question}</p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {q.options.map((o) => (
+          <Button key={o} size="sm" variant={pick === o ? (o === q.answer ? "default" : "destructive") : "outline"} onClick={() => setPick(o)}>{o}</Button>
+        ))}
+      </div>
+      {pick && <p className="mt-2 text-sm">{pick === q.answer ? "✅ Correct! " : `Not quite — the answer is ${q.answer}. `}{q.explanation}</p>}
+    </div>
+  );
 }
 
 function HistoryCard({ d, onOpen }: { d: Discovery; onOpen: () => void }) {
@@ -412,9 +466,10 @@ function LearningResult(props: {
         <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">What did you discover?</p>
         <div className="mt-1 flex flex-wrap items-center gap-3">
           <h2 className="font-display text-3xl font-bold text-primary">{r.feature}</h2>
-          <ConfidenceBadge value={r.confidence} />
+          <ConfidenceBadge value={r.confidence} level={r.confidence_level} />
         </div>
         <p className="text-sm text-muted-foreground">{r.category} · Topic: {r.topic}</p>
+        <EvidenceBox r={r} />
         {!confirmed && (
           <div className="mt-3 flex flex-wrap gap-2">
             <Button size="sm" onClick={props.onConfirm}><CheckCircle2 className="mr-1 h-4 w-4" />Yes, that's it!</Button>
@@ -434,6 +489,7 @@ function LearningResult(props: {
         </ul>
       </div>
       <Section title="Why does it matter?">{r.why_it_matters}</Section>
+      {r.interactive_question && <InteractiveQ q={r.interactive_question} />}
       <div className="rounded-3xl border bg-card p-5">
         <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Key vocabulary</h3>
         <dl className="mt-2 grid gap-2 sm:grid-cols-2">
