@@ -13,6 +13,7 @@ import { useAuth } from "@/lib/auth";
 import { getRequiredAccessToken } from "@/lib/auth-token";
 import { Button } from "@/components/ui/button";
 import { analyzeSnap, type SnapLevel, type SnapResult } from "@/lib/geosnap.functions";
+import { disputeSnap } from "@/lib/geosnap-prompt";
 
 export const Route = createFileRoute("/_app/geosnap")({
   component: GeoSnapPage,
@@ -47,7 +48,9 @@ async function resizeImage(file: Blob, max = 1600): Promise<{ dataUrl: string; b
   const c = document.createElement("canvas");
   c.width = Math.round(bmp.width * scale);
   c.height = Math.round(bmp.height * scale);
-  c.getContext("2d")!.drawImage(bmp, 0, 0, c.width, c.height);
+  const ctx = c.getContext("2d");
+  if (!ctx) throw new Error("Your browser could not prepare this photo.");
+  ctx.drawImage(bmp, 0, 0, c.width, c.height);
   const dataUrl = c.toDataURL("image/jpeg", 0.88);
   const blob = await (await fetch(dataUrl)).blob();
   return { dataUrl, blob };
@@ -305,7 +308,7 @@ function GeoSnapPage() {
                     <p className="text-sm font-semibold">🤔 {result.followup_question.question}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {result.followup_question.options.map((o) => (
-                        <Button key={o} size="sm" variant="outline" onClick={() => reAnalyzeWithHint(`${result.followup_question!.question} → ${o}`)}>{o}</Button>
+                        <Button key={o} size="sm" variant="outline" onClick={() => reAnalyzeWithHint(`${result.followup_question?.question} → ${o}`)}>{o}</Button>
                       ))}
                     </div>
                   </div>
@@ -324,7 +327,7 @@ function GeoSnapPage() {
               </div>
             )}
 
-            {result && !busy && result.certain && discovery && (
+            {result && !busy && (result.certain || result.student_selected) && discovery && (
               <LearningResult
                 result={result}
                 discovery={discovery}
@@ -332,7 +335,7 @@ function GeoSnapPage() {
                 tab={tab}
                 setTab={setTab}
                 onConfirm={() => award(discovery, "identify")}
-                onNotRight={() => setResult({ ...result, certain: false, candidates: result.candidates.length ? result.candidates : [{ name: result.feature, confidence: result.confidence, reason: "" }] })}
+                onNotRight={() => setResult(disputeSnap(result) as SnapResult)}
                 onExplained={() => award(discovery, "explain")}
                 onLesson={() => award(discovery, "lesson")}
                 onQuiz={(score, total) => award(discovery, "quiz", { quiz_score: score, quiz_total: total })}
@@ -365,7 +368,7 @@ function ConfidenceBadge({ value, level }: { value: number; level?: string }) {
 }
 
 function EvidenceBox({ r }: { r: SnapResult }) {
-  if (!r.evidence?.length && !r.distinguishing && !r.uncertainty_note) return null;
+  if (!r.evidence?.length && !r.distinguishing && !r.uncertainty_note && !r.retake_tip) return null;
   return (
     <div className="mt-3 rounded-2xl bg-muted/50 p-3 text-sm">
       {!!r.evidence?.length && (<><p className="font-semibold">What I can see in your photo</p><ul className="ml-4 list-disc">{r.evidence.map((e) => <li key={e}>{e}</li>)}</ul></>)}

@@ -52,11 +52,14 @@ export function asLevel(v: unknown): ConfidenceLevel {
   return v === "high" || v === "medium" || v === "low" ? v : "low";
 }
 
-/** Normalise model output; "certain" is derived from the category, never from the model's own flag. */
+/** Student selection opens a lesson but never upgrades visual confidence. */
 export function normalizeSnap<T extends Record<string, any>>(raw: T, confirmedFeature?: string) {
   const r: Record<string, any> = { ...raw };
-  r.confidence_level = confirmedFeature ? "high" : asLevel(r.confidence_level);
-  if (confirmedFeature) r.feature = confirmedFeature;
+  r.confidence_level = asLevel(r.confidence_level);
+  if (confirmedFeature) {
+    r.feature = confirmedFeature;
+    r.student_selected = true;
+  }
   r.confidence = LEVEL_SCORE[r.confidence_level as ConfidenceLevel];
   r.candidates = (Array.isArray(r.candidates) ? r.candidates : [])
     .filter((c: any) => c?.name && c.name !== r.feature)
@@ -65,12 +68,24 @@ export function normalizeSnap<T extends Record<string, any>>(raw: T, confirmedFe
       const lvl = asLevel(c.confidence_level);
       return { name: String(c.name), confidence_level: lvl, confidence: LEVEL_SCORE[lvl], reason: String(c.reason ?? "") };
     });
-  r.certain = !!confirmedFeature || r.confidence_level === "high";
+  r.certain = r.confidence_level === "high";
   for (const k of ["evidence", "observations", "quiz", "vocabulary", "where_found", "learn_more"]) if (!Array.isArray(r[k])) r[k] = [];
   r.distinguishing ??= "";
   r.uncertainty_note ??= "";
   r.retake_tip ??= "";
   r.followup_question = r.followup_question?.question ? r.followup_question : null;
+  if (!r.certain) {
+    if (!r.evidence.length) r.evidence = r.observations.filter((v: unknown) => typeof v === "string").slice(0, 5);
+    if (!r.uncertainty_note) r.uncertainty_note = "The visible details are not enough to distinguish this feature confidently.";
+    if (!r.retake_tip) r.retake_tip = "From a safe position, take a sharp, wider photo showing the whole feature and its surroundings.";
+    if (!Array.isArray(r.followup_question?.options) || r.followup_question.options.length < 2) {
+      r.followup_question = { question: "What can you see more clearly in person?", options: ["Raised or sloping land", "Water and its banks or shoreline", "Plants, buildings or roads", "I am not sure"] };
+    }
+  }
   r.interactive_question = r.interactive_question?.question ? r.interactive_question : null;
   return r;
+}
+
+export function disputeSnap<T extends Record<string, any>>(raw: T) {
+  return normalizeSnap({ ...raw, certain: false, student_selected: false, confidence_level: "low", uncertainty_note: "You said this identification does not match. The feature needs another look.", retake_tip: "", followup_question: null });
 }
