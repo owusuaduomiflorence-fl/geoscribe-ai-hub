@@ -7,6 +7,7 @@ export type SnapLevel = "simple" | "school" | "deep";
 
 export type SnapResult = {
   certain: boolean;
+  student_selected?: boolean;
   feature: string;
   category: string;
   topic: string;
@@ -57,7 +58,7 @@ export const analyzeSnap = createServerFn({ method: "POST" })
     if (!key) throw new Error("AI is not configured.");
 
     const userText = data.chosenFeature
-      ? `The student confirmed this photo shows: "${data.chosenFeature}". Use that as the feature, still list the visible evidence for it honestly, and teach it. Level: ${LEVEL_GUIDE[data.level]} Reply with the JSON object described in the instructions.`
+      ? `The student selected "${data.chosenFeature}" to learn about. Use that as the lesson feature, but selection is NOT proof: judge confidence only from visible evidence, retaining uncertainty, a retake tip and a follow-up question when needed. Level: ${LEVEL_GUIDE[data.level]} Reply with the JSON object described in the instructions.`
       : `Identify the geographical feature in this photo and teach it.${data.hint ? ` Extra context from the student (use it as evidence, but do not let it override what the photo clearly shows): "${data.hint}".` : ""} Level: ${LEVEL_GUIDE[data.level]} Reply with the JSON object described in the instructions.`;
 
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
